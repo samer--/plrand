@@ -31,5 +31,10 @@ RngStream.o: RngStream.c
 rndutils.o: rndutils.c
 	gcc $(PLLDFLAGS) -O2 -c rndutils.c 
 
+install-me:
+	swipl -f none -g "pack_install(.,[upgrade(true)]), halt"
+
+publish:
+	swipl -f none -g "pack_property(plrand,download(D)), pack_install(D), halt"
 
 

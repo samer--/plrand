@@ -45,41 +45,28 @@
       * stream
          A spittable stream, containing a =|state|= and a =|jump|=.
 
-   ---+++ Public but not exported 
+   ---+++ Available but not exported 
 
    ==
-   sample_Uniform01/1
-   sample_Raw/1
-   sample_Normal/1
-   sample_Exponential/1
-   sample_Beta/2
-   sample_Gamma/2
-   sample_Poisson/2
-   sample_Zeta/2
-   sample_Discrete/3,  sample_DiscreteF/3
-   sample_Dirichlet/3,  sample_DirichletF/3
-   sample_Stable/3
-   sample_Binomial/3
+   sample_Uniform01(-float)//
+   sample_Raw(-integer)//
+   sample_Normal(-float)//
+   sample_Exponential(-nonneg)//
+   sample_Beta(+nonneg, +nonneg, -nonneg)//
+   sample_Gamma(+nonneg, -float)//
+   sample_Poisson(+nonneg, -natural)//
+   sample_Zeta(+nonneg, -natural)//
+   sample_Discrete//3
+   sample_DiscreteF//3
+   sample_Dirichlet//3
+   sample_DirichletF//3
+   sample_Stable//3
+   sample_Binomial//3
    ==
 */
 
 :-	use_foreign_library(foreign(plrand)).
-:- meta_predicate with_rnd_state(:).
-:- meta_predicate run_rnd_state(:,+,-).
-
-:- public sample_Uniform01/1
-       ,  sample_Raw/1
-       ,  sample_Normal/1
-       ,  sample_Exponential/1
-       ,  sample_Beta/2
-       ,  sample_Gamma/2
-       ,  sample_Poisson/2
-       ,  sample_Zeta/2
-       ,  sample_Discrete/3,  sample_DiscreteF/3
-       ,  sample_Dirichlet/3,  sample_DirichletF/3
-       ,  sample_Stable/3
-       ,  sample_Binomial/3
-       .
+:- meta_predicate with_rnd_state(:), run_rnd_state(:,+,-).
 
 %% get_rnd_state(-State:state) is det.
 %
