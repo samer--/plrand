@@ -19,7 +19,6 @@
 */
 	
 :-	use_foreign_library(foreign(plrand)).
-:- use_module(library(plrand))
 :- multifile sample/4, rv/2.
 
 %% rv(-Spec, -Type) is multi.
@@ -195,6 +194,4 @@ seqmap(_,[])             --> [].
 seqmap(P,[A|AX])         --> call(P,A), seqmap(P,AX).
 seqmap(_,[],[])          --> [].
 seqmap(P,[A|AX],[B|BX])  --> call(P,A,B), seqmap(P,AX,BX).
-
-
 
