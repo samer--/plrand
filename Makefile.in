@@ -1,0 +1,35 @@
+HAVE_GSL=<HAVE_GSL>
+TARGET=plrand
+
+CFLAGS+=-O2
+ifeq ($(HAVE_GSL),1)
+	CFLAGS+=-DHAVE_GSL=1 $(shell pkg-config --cflags gsl)
+	LIBS+=$(shell pkg-config --libs gsl)
+else
+	CFLAGS+=-DHAVE_GSL=0
+endif
+
+SOBJ=$(PACKSODIR)/$(TARGET).$(SOEXT)
+
+all:	$(SOBJ)
+
+$(SOBJ): c/$(TARGET).o c/RngStream.o c/rndutils.o
+	mkdir -p $(PACKSODIR)
+	$(LD) $(LDSOFLAGS) -o $@ $(SWISOLIB) $^ $(LIBS)
+	strip -x $@
+
+check::
+install::
+clean:
+	rm -f c/$(TARGET).o
+distclean: clean
+	rm -f $(SOBJ)
+
+RngStream.o: RngStream.c
+	gcc -O2 -c -Wall RngStream.c 
+
+rndutils.o: rndutils.c
+	gcc $(PLLDFLAGS) -O2 -c rndutils.c 
+
+
+

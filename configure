@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if pkg-config --exists gsl ; then
+	echo "Using GSL..."
+	HAVE_GSL=1
+else
+	echo "GSL not found."
+	HAVE_GSL=0
+fi
+
+sed -e "s;<HAVE_GSL>;$HAVE_GSL;" < Makefile.in > Makefile

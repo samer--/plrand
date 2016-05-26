@@ -1,0 +1,63 @@
+v0.2 - Added a build option in root Makefile to allow compilation without GSL.
+
+v0.3 - Several changes:
+
+	+ Replaced generator algorithm with one based on Pierre l'Ecuyer's
+	  combined multiple recursive generator as found in his RngStreams package.
+	  This has a much longer period (about 2^191) and support for jumping
+	  a known number of samples ahead in the stream.
+
+	+ Sampled real values now have double precision (53 bits) as opposed to
+	  single precision.
+
+	+ Added spawn/3 for sampling an entire new stream from a given generator,
+	  by sampling enough data to determine a new generator state.
+
+	+ Added init_jump/2, double_jump/2, and jump/3, to support jumping ahead
+	  a known number of samples in the stream. The jump must be a power of 2
+	  and can be very large.
+
+	+ Added sampling method for a Dirichlet distribution with an arbitrary
+	  base measure. Uses the stick-breaking construction to represent the
+	  infinite discrete distribution which results from sampling from a DP.
+	  spawn/3 or split/3 are used to generate the infinite stream of random values
+	  required to construct the sample; this is represented as a lazy list. 
+	  The base measure can be any of the distributions handled by sample/4.
+
+	+ Removed all foreign interface functions that use or set the global
+	  random generator state, except for set_rnd_state/1, get_rnd_state/1,
+	  sample_Single_/1 and sample_Double_/1.
+
+	  sample_Single_/1 and sample_Double_/1 are retained for situations where
+	  performance is an issue - they use and update the global state and
+	  are faster.
+
+v0.4 - Fixes to GSL client code and other minor changes
+
+	+ top Makefile now points to /opt/local for GSL (good for MacPorts)
+	+ Makefile now handles HAVE_GSL flag better
+	+ added \\ operator to sampling language for escapes to prolog predicate
+	+ Minor changes to plrand.c and plrand.pl
+
+v0.5 - Fixes for 64 bit architectures and removal of dirichlet processes
+
+	+ unsigned long changed to unsigned (ie explicitly 32 bit int) in
+	  RngStream and plrand, now work on 64 bit architectures where long
+	  is 64 bits. This fixes randomise/1 which was broken by 64 bit.
+
+	+ sample/4 and rv/2 are now multifile so can be extended by user.
+
+	+ Removed Dirichlet process and GEM (stick breaking construction) to
+	  a separate module (not included).
+
+	+ Removed str_sample/4.
+
+v0.6 - Fix to prevent memory corruption plus a few enhancements
+
+	+ Change to BLOB flags seems to be enough to prevent bizarre memory
+	  corruption problem that was affecting host Prolog.
+
+	+ Added term representation of random state to facilitate persistent
+	  storage
+
+
