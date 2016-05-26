@@ -3,7 +3,7 @@
  * Samer Abdallah (2009)
 */
 	  
-:- module(plrand, [
+:- module(samplers, [
 		rv/2 					% -Spec, -Type
 	,	sample/4				% +Dist, -Value, +StateIn, -StateOut
 	,	sample/2				% +Dist, -Value
@@ -18,7 +18,7 @@
    from random variables.
 */
 	
-:-	use_foreign_library(foreign(plrand)).
+:-	use_module(library(plrand)).
 :- multifile sample/4, rv/2.
 
 %% rv(-Spec, -Type) is multi.
@@ -96,44 +96,44 @@ rv( discrete(tuple(nonneg)),natural).
 %     X = [3, 2, 3, 3, 3, 1, 2, 2] .
 %     ==
 
-sample( raw, X)   --> sample_Raw(X1), {X is integer(X1)}.
+sample( raw, X)   --> plrand:sample_Raw(X1), {X is integer(X1)}.
 
-sample( uniform01, X)   --> sample_Uniform01(X).
-sample( normal, X)      --> sample_Normal(X).
-sample( exponential, X) --> sample_Exponential(X).
-sample( gamma(A), X)    --> sample(A,A1), sample_Gamma(A1,X).
-sample( poisson(A), X)  --> sample(A,A1), sample_Poisson(A1,X).
-sample( invgamma(A), X) --> sample(A,A1), sample_Gamma(A1,Y), {X is 1/Y}.
-sample( beta(A,B), X)   --> sample(A,A1), sample(B,B1), sample_Beta(A1,B1,X).
-sample( zeta(A), X)     --> sample(A,A1), sample_Zeta(A1,X1), {X is integer(X1)}.
-sample( pareto(A), X)   --> sample(A,A1), sample_Uniform01(Y), {X is (1-Y)**(-1/A1) }.
-sample( binomial(P,N), X)  --> sample(P,P1), sample(N,N1), sample_Binomial(P1,N1,X).
+sample( uniform01, X)   --> plrand:sample_Uniform01(X).
+sample( normal, X)      --> plrand:sample_Normal(X).
+sample( exponential, X) --> plrand:sample_Exponential(X).
+sample( gamma(A), X)    --> sample(A,A1), plrand:sample_Gamma(A1,X).
+sample( poisson(A), X)  --> sample(A,A1), plrand:sample_Poisson(A1,X).
+sample( invgamma(A), X) --> sample(A,A1), plrand:sample_Gamma(A1,Y), {X is 1/Y}.
+sample( beta(A,B), X)   --> sample(A,A1), sample(B,B1), plrand:sample_Beta(A1,B1,X).
+sample( zeta(A), X)     --> sample(A,A1), plrand:sample_Zeta(A1,X1), {X is integer(X1)}.
+sample( pareto(A), X)   --> sample(A,A1), plrand:sample_Uniform01(Y), {X is (1-Y)**(-1/A1) }.
+sample( binomial(P,N), X)  --> sample(P,P1), sample(N,N1), plrand:sample_Binomial(P1,N1,X).
 
-sample( stable(A,B), X)    --> sample(A,A1), sample(B,B1), sample_Stable(A1,B1,X).
+sample( stable(A,B), X)    --> sample(A,A1), sample(B,B1), plrand:sample_Stable(A1,B1,X).
 
-sample( dirichlet(N,A), X) --> sample(A,A1), sample_Dirichlet(N,A1,X).
+sample( dirichlet(N,A), X) --> sample(A,A1), plrand:sample_Dirichlet(N,A1,X).
 sample( dirichlet(A), X)   --> sample(A,A1), 
 	(	{A1=[_|_]} 
-	->	{length(A1,N)}, sample_Dirichlet(N,A1,X)
-	;	{functor(A1,F,N), functor(X,F,N)}, sample_DirichletF(N,A1,X)
+	->	{length(A1,N)}, plrand:sample_Dirichlet(N,A1,X)
+	;	{functor(A1,F,N), functor(X,F,N)}, plrand:sample_DirichletF(N,A1,X)
 	).
 
-sample( discrete(N,P), X)  --> sample(P,P1), sample_Discrete(N,P1,X).
+sample( discrete(N,P), X)  --> sample(P,P1), plrand:sample_Discrete(N,P1,X).
 sample( discrete(P), X)    --> 
 	sample(P,P1), 
 	(	{P1=[_|_]}
-	->	{length(P1,N)}, sample_Discrete(N,P1,X)
-	;	{functor(P1,_,N)}, sample_DiscreteF(N,P1,X)
+	->	{length(P1,N)}, plrand:sample_Discrete(N,P1,X)
+	;	{functor(P1,_,N)}, plrand:sample_DiscreteF(N,P1,X)
 	).
 
-sample( bernoulli(P), X)   --> sample(P,P1), sample_Uniform01(U), {U<P1->X=1;X=0}.
+sample( bernoulli(P), X)   --> sample(P,P1), plrand:sample_Uniform01(U), {U<P1->X=1;X=0}.
 sample( students_t(V), X)   --> sample(V/2,V1), sample(normal*sqrt(V1/gamma(V1)),X).
 
 % dps(Vals) represents a countably infinite discrete distribution. It is an infinite
 % stream of weight:value pairs.
 
 sample(dps([B1:X1|Vals]),X) -->
-   sample_Uniform01(U),
+   plrand:sample_Uniform01(U),
 	(	{U<B1} -> {X=X1}
 	;  sample(dps(Vals),X)
 	).
