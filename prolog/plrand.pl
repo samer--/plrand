@@ -24,6 +24,7 @@
 	,	sample_Single_/1  % -float
 	,	sample_Double_/1  % -float
 	]).
+
 /** <module> Skippable, splittable psuedorandom generator
 
    This module provides an interface to Pierre Ecuyer's pseudorandom generator
@@ -44,12 +45,41 @@
       * stream
          A spittable stream, containing a =|state|= and a =|jump|=.
 
+   ---+++ Public but not exported 
+
+   ==
+   sample_Uniform01/1
+   sample_Raw/1
+   sample_Normal/1
+   sample_Exponential/1
+   sample_Beta/2
+   sample_Gamma/2
+   sample_Poisson/2
+   sample_Zeta/2
+   sample_Discrete/3,  sample_DiscreteF/3
+   sample_Dirichlet/3,  sample_DirichletF/3
+   sample_Stable/3
+   sample_Binomial/3
+   ==
 */
 
 :-	use_foreign_library(foreign(plrand)).
 :- meta_predicate with_rnd_state(:).
 :- meta_predicate run_rnd_state(:,+,-).
 
+:- public sample_Uniform01/1
+       ,  sample_Raw/1
+       ,  sample_Normal/1
+       ,  sample_Exponential/1
+       ,  sample_Beta/2
+       ,  sample_Gamma/2
+       ,  sample_Poisson/2
+       ,  sample_Zeta/2
+       ,  sample_Discrete/3,  sample_DiscreteF/3
+       ,  sample_Dirichlet/3,  sample_DirichletF/3
+       ,  sample_Stable/3
+       ,  sample_Binomial/3
+       .
 
 %% get_rnd_state(-State:state) is det.
 %
