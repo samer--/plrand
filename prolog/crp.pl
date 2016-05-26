@@ -22,12 +22,14 @@
 /**	<module> Chinese Restaurant Process utilities
 
 	==
-	gem_model ---> dp(Alpha:nonneg)
-	             ; py(Alpha:nonneg,Discount:nonneg).
+   classes(A) ---> classes(natural, list(nonneg), list(A)).
+	gem_model  ---> dp(Alpha:nonneg)
+	              ; py(Alpha:nonneg,Discount:nonneg).
 
-	gamma_prior ---> gamma(nonneg,nonneg).
-	beta_prior  ---> beta(nonneg,nonneg).
-	param_sampler == pred(+gem_model,-gem_model,+rndstate,-rndstate).
+	gamma_prior ---> gamma(nonneg, nonneg).
+	beta_prior  ---> beta(nonneg, nonneg).
+	param_sampler == pred(+gem_model, -gem_model, +rndstate, -rndstate).
+   rndstate == plrand:state
 	==
 
 */
@@ -39,9 +41,11 @@
 :- use_module(library(dcg_macros)).
 :- use_module(library(apply_macros)).
 :- use_module(library(plrand),   [spawn/3, crp_prob/5, crp_sample/5, crp_sample_obs/7, crp_sample_rm/5]).
-:- use_module(library(lazy),     [lazy_unfold/4, lazy_unfold/5]).
-:- use_module(library(randpred), [dirichlet//2, beta//3]).
-:- add_import_module(randpred, plrand, start).
+
+% :- use_module(library(lazy),     [lazy_unfold/4, lazy_unfold/5]).
+lazy_unfold(P,[X1|XX],[Y1|YY],S1,S3) :- call(P,X1,Y1,S1,S2), freeze(YY,lazy_unfold(P,XX,YY,S2,S3)).
+lazy_unfold(P,[X1|XX],S1,S3)         :- call(P,X1,S1,S2), freeze(XX,lazy_unfold(P,XX,S2,S3)).
+mul(X,Y,Z)   :- Z is X*Y.
 
 
 %% crp_prob( +GEM:gem_model, +Classes:classes(A), +X:A, +PProb:float, -Prob:float) is det.
@@ -82,7 +86,8 @@ crp_dist( dp(Alpha), classes(_,Counts,Values), Base, Dist, RS1, RS3) :-
 	Norm is Total+Alpha,
 
 	(	Total>0
-	-> dirichlet(Counts,Probs1, RS1, RS2),
+	-> length(Counts, N), 
+      plrand:sample_Dirichlet(N, Counts, Probs1, RS1, RS2),
 		lazy_dp(Alpha,Base,Alpha,ValuesT,ProbsT, RS2, RS3),
 		maplist(mul(Total),Probs1,Probs2),
 		append(Probs2,ProbsT,ProbsA),
@@ -182,10 +187,10 @@ unfold_dp(A,H,V:X) --> \> call(H,V), unfold_gem(A,X).
 
 % lazy_gem(A,Probs) --> spawn(S0), { lazy_unfold(unfold_gem(A),Probs,(1,S0),_) }.
 
-unfold_gem(A,X) -->
-	\> beta(1,A,P),
-	\< trans(P0,P1),
-	{ X is P*P0, P1 is P0-X }.
+unfold_gem(A,X,P0-S1,P1-S2) :-
+	plrand:sample_Beta(1,A,P,S1,S2),
+	X is P*P0, P1 is P0-X.
+
 
 %% classes_update( +Action:action(A), +C1:classes(A), -C2:classes(A)) is det.
 %
@@ -194,11 +199,7 @@ classes_update(old(_,ID),C1,C2) :- inc_class(ID,C1,C2).
 classes_update(new(X,ID),C1,C2) :- add_class(X,ID,C1,C2).
 
 
-
-
 % PARAMETER SAMPLING
-
-
 
 % ---------------------------------------------------------------
 % Initialisers
@@ -235,7 +236,7 @@ slow_sample_py_teh( gamma(A,B), beta(DA,DB), CountsX, py(Theta1,Disc1), py(Theta
 		A1  is A+SumSX,   B1 is B-SumLogWX,
 		DA1 is DA+SumNSX, DB1 is DB+SumZX },
 	gamma(A1, B1, Theta2), 
-	beta(DA1, DB1, Disc2).
+	plrand:sample_Beta(DA1, DB1, Disc2).
 
 py_sample_s_z_w(Theta,Disc,Counts,S,NS,Z,W) -->
 	py_sample_bern_z(Disc,Counts,Z),
@@ -250,12 +251,12 @@ py_sample_s_z_log_w(Theta,Disc,Counts,S,NS,Z,LogW) -->
 py_sample_beta_w(_, [], 1) --> !.
 py_sample_beta_w(Theta, Counts, W) -->
 	{sumlist(Counts,N), Th1 is Theta+1, N1 is N-1},
-	beta( Th1, N1, W).
+	plrand:sample_Beta( Th1, N1, W).
 
 py_sample_beta_log_w(_, [], 0) --> !.
 py_sample_beta_log_w(Theta, Counts, LogW) -->
 	{sumlist(Counts,N), Th1 is Theta+1, N1 is N-1},
-	beta( Th1, N1, W), { LogW is log(W) }.
+	plrand:sample_Beta( Th1, N1, W), { LogW is log(W) }.
 
 py_sample_bern_s(Theta,Disc,Counts,SumS,SumNS) -->
 	(	{Counts=[_|Cm1], length(Cm1,Kminus1), numlist(1,Kminus1,KX)}
@@ -293,6 +294,4 @@ bernoulli(A,B,X) -->
 	uniform01(U),
 	({(A+B)*U<B} -> {X=1}; {X=0} ). 
 */
-
-mul(X,Y,Z)   :- Z is X*Y.
 

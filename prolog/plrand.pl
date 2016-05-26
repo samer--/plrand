@@ -99,8 +99,18 @@
 with_rnd_state(P) :- get_rnd_state(S1), call_dcg(P,S1,S2), set_rnd_state(S2).
 
 
+%% rnd_state_term( +State:state, -Term:state_term) is det.
+%% rnd_state_term( -State:state, +Term:state_term) is det.
+%
+%  Convert between blob and term representation of random state.
+rnd_state_term(RS,T) :-
+	(	nonvar(RS)	-> rnd_state_to_term(RS,T)
+	;	ground(T)	->	term_to_rnd_state(T,RS)
+	).
+
+
 %% run_rnd_state(Cmd:phrase(state), +State1:state, -State2:state) is nondet.
-%% run_rnd_state(Cmd:phrase(state), +State1:state, -State2:state) is nondet.
+%% run_rnd_state(Cmd:phrase(state), +State1:state_term, -State2:state_term) is nondet.
 %
 %  Runs DCG phrase Cmd as with call_dcg/3, except that, if State1 is in the term representation 
 %  (type =|state|=), it is converted to the blob representation (type =|state|=) and the final
@@ -198,13 +208,4 @@ stream_split(stream(S0,J0),stream(S0,J1),stream(S1,J1)) :- !,
 % internal (global) random generator state. It consumes two 32 bit values
 % from the generator.
 
-
-%% rnd_state_term( +State:state, -Term:state_term) is det.
-%% rnd_state_term( -State:state, +Term:state_term) is det.
-%
-%  Convert between blob and term representation of random state.
-rnd_state_term(RS,T) :-
-	(	nonvar(RS)	-> rnd_state_to_term(RS,T)
-	;	ground(T)	->	term_to_rnd_state(T,RS)
-	).
 
