@@ -33,15 +33,14 @@
 */
 :- meta_predicate seqmap_classes(4,+,?,?).
 
-:-	use_foreign_library(foreign(plrand)).
+:-	use_foreign_library(foreign(plrand)). % spawn/3
 :- use_module(library(dcg_core)).
 :- use_module(library(dcg_pair)).
 :- use_module(library(dcg_macros)).
-:- use_module(library(math)).
-:- use_module(library(eval)).
-:- use_module(library(lazy)).
-:- use_module(library(randpred)).
 :- use_module(library(apply_macros)).
+% :- use_module(library(eval)).
+:- use_module(library(lazy),     [lazy_unfold/4]).
+:- use_module(library(randpred), [dirichlet//2, beta//3]).
 
 
 %% crp_prob( +GEM:gem_model, +Classes:classes(A), +X:A, +PProb:float, -Prob:float) is det.
@@ -264,6 +263,8 @@ py_sample_bern_s(Theta,Disc,Counts,SumS,SumNS) -->
 		{SumNS is Kminus1 - SumS}
 	;	{SumS=0,SumNS=0}
 	).
+
+mul(X,Y,Z)   :- Z is X*Y.
 
 py_sample_bern_z(Disc,Counts,Z) --> 
 	{Disc1 is 1-Disc}, 
