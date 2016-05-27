@@ -118,16 +118,16 @@ sample( dirichlet(A), X)   --> sample(A,A1),
 	;	{functor(A1,F,N), functor(X,F,N)}, plrand:sample_DirichletF(N,A1,X)
 	).
 
-sample( discrete(N,P), X)  --> sample(P,P1), plrand:sample_Discrete(N,P1,X).
-sample( discrete(P), X)    --> 
+sample( discrete(N,P), X) --> sample(P,P1), plrand:sample_Discrete(N,P1,X).
+sample( discrete(P), X)   --> 
 	sample(P,P1), 
 	(	{P1=[_|_]}
 	->	{length(P1,N)}, plrand:sample_Discrete(N,P1,X)
 	;	{functor(P1,_,N)}, plrand:sample_DiscreteF(N,P1,X)
 	).
 
-sample( bernoulli(P), X)   --> sample(P,P1), plrand:sample_Uniform01(U), {U<P1->X=1;X=0}.
-sample( students_t(V), X)   --> sample(V/2,V1), sample(normal*sqrt(V1/gamma(V1)),X).
+sample( bernoulli(P), X)  --> sample(P,P1), plrand:sample_Uniform01(U), {U<P1->X=1;X=0}.
+sample( students_t(V), X) --> sample(V/2,V1), sample(normal*sqrt(V1/gamma(V1)),X).
 
 % dps(Vals) represents a countably infinite discrete distribution. It is an infinite
 % stream of weight:value pairs.

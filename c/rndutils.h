@@ -24,8 +24,19 @@ double Gamma(RndState *,double a);
 long   Poisson(RndState *,double a);
 int    Dirichlet(RndState *,long n, double *a, double *x);
 double Beta(RndState *,double a, double b);
-double Zeta(RndState *,double a);
+long   Zeta(RndState *,double a);
 int 	 Binomial(RndState *,double p, int n);
 double Stable(RndState *,int param,double a, double b);
 long   Discrete(RndState *, long n, double *p, double tot);
+
+double pdf_Normal(double x);
+double pdf_Beta(double a, double b, double x);
+double pdf_Gamma(double a, double x);
+double pdf_Exponential(double x);
+double pdf_Zeta(double s, long x);
+double pdf_Poisson(double m, long x);
+double pdf_Binomial(double p, long n, long int x);
+double pdf_Dirichlet(long n, double *a, double *x);
+double pdf_Discrete(long n, double *p, double tot, long x);
+double pdf_Uniform(double x);
 

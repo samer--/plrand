@@ -20,10 +20,29 @@
 
 #if HAVE_GSL
 #include <gsl/gsl_sf_zeta.h>
+#include <gsl/gsl_randist.h>
 #else
+double gs_ran_exponential_pdf(double x, double a) { return NAN; }
+double gs_ran_gaussian_pdf(double x, double a) { return NAN; }
+double gs_ran_beta_pdf(double x, double a, double b) { return NAN; }
+double gs_ran_dirichlet_pdf(size_t n, double *a, double *x) { return NAN; }
+double gs_ran_gamma_pdf(double x, double a, double b) { return NAN; }
+double gs_ran_poisson_pdf(unsigned int x, double a) { return NAN; }
+double gs_ran_binomial_pdf(unsigned int x, double a, unsigned int b) { return NAN; }
 double gsl_sf_zeta(const double s) { return NAN; }
 double gsl_sf_hzeta(const double s, const double k) { return NAN; }
 #endif
+
+double pdf_Normal(double x)                        { return gsl_ran_gaussian_pdf(x,1); }
+double pdf_Beta(double a, double b, double x)      { return gsl_ran_beta_pdf(x,a,b); }
+double pdf_Gamma(double a, double x)               { return gsl_ran_gamma_pdf(x,a,1); }
+double pdf_Exponential(double x)                   { return gsl_ran_exponential_pdf(x,1); }
+double pdf_Zeta(double s, long x)                  { return pow(x,-s)/gsl_sf_zeta(s); }
+double pdf_Poisson(double m, long x)               { return gsl_ran_poisson_pdf(x,m); }
+double pdf_Binomial(double p, long n, long x)      { return gsl_ran_binomial_pdf(x,p,n); }
+double pdf_Dirichlet(long n, double *a, double *x) { return gsl_ran_dirichlet_pdf(n, a, x); }
+double pdf_Discrete(long n, double *p, double tot, long x) { return p[x]/tot; }
+double pdf_Uniform(double x)                       { return 1.0; }
 
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
@@ -56,6 +75,7 @@ double Normal(RndState *S)
 	}
 	return x;
 }
+
 
 /* Returns a sample from Gamma(a, 1).
  * For Gamma(a,b), scale the result by b.
@@ -122,7 +142,7 @@ double Hyperbolic(RndState *S, double a)
  * only have to walk left or right a few steps for small 
  * values.
  */
-double Zeta(RndState *S, double s)
+long Zeta(RndState *S, double s)
 {
 	double v=(1-Uniform(S))*gsl_sf_zeta(s);
 	double k0, k=round(pow(v*(s-1),1/(1-s))); // approx inverse of hzeta
@@ -133,13 +153,13 @@ double Zeta(RndState *S, double s)
 			k0=k; zk0=zk;
 			k=k0+1; zk=zk0-pow(k0,-s);
 		} while (zk>=v && zk!=zk0);
-		return k0;
+		return (long)k0;
 	} else {
 		do {
 			k0=k; zk0=zk;
 			k=k0-1; zk=zk0+pow(k,-s);
 		} while (zk<v && zk!=zk0);
-		return k;
+		return (long)k;
 	}
 }
 

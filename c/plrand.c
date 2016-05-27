@@ -60,6 +60,17 @@ foreign_t sample_DirichletF( term_t n, term_t a, term_t x, term_t s0, term_t s1)
 foreign_t sample_Discrete( term_t n, term_t p, term_t x, term_t s0, term_t s1);
 foreign_t sample_DiscreteF( term_t n, term_t p, term_t x, term_t s0, term_t s1);
 
+foreign_t prob_Uniform01( term_t x, term_t p); 
+foreign_t prob_Normal( term_t x, term_t p);
+foreign_t prob_Exponential( term_t x, term_t p);
+foreign_t prob_Gamma( term_t a, term_t x, term_t p);
+foreign_t prob_Poisson( term_t a, term_t x, term_t p);
+foreign_t prob_Beta( term_t a, term_t b, term_t x, term_t p);
+foreign_t prob_Zeta( term_t a, term_t x, term_t p);
+foreign_t prob_Binomial( term_t q, term_t n, term_t x, term_t p);
+foreign_t prob_Dirichlet( term_t n, term_t a, term_t x, term_t p);
+foreign_t prob_Discrete( term_t n, term_t q, term_t x, term_t p);
+
 foreign_t sample_Single_( term_t x); 
 foreign_t sample_Double_( term_t x); 
 
@@ -108,6 +119,8 @@ install_t install() {
 	PL_register_foreign("rnd_state_to_term", 2, (void *)rnd_state_to_term, 0);
 	PL_register_foreign("term_to_rnd_state", 2, (void *)term_to_rnd_state, 0);
 
+	PL_register_foreign("sample_Single_", 1, (void *)sample_Single_, 0);
+	PL_register_foreign("sample_Double_", 1, (void *)sample_Double_, 0);
 	PL_register_foreign("sample_Raw", 3, (void *)sample_Raw, 0);
 
 	PL_register_foreign("sample_Uniform01", 3, (void *)sample_Uniform01, 0);
@@ -116,16 +129,24 @@ install_t install() {
 	PL_register_foreign("sample_Gamma",     4, (void *)sample_Gamma, 0);
 	PL_register_foreign("sample_Poisson",   4, (void *)sample_Poisson, 0);
 	PL_register_foreign("sample_Beta",      5, (void *)sample_Beta, 0);
-	PL_register_foreign("sample_Zeta",     4, (void *)sample_Zeta, 0);
+	PL_register_foreign("sample_Zeta",      4, (void *)sample_Zeta, 0);
 	PL_register_foreign("sample_Dirichlet", 5, (void *)sample_Dirichlet, 0);
-	PL_register_foreign("sample_DirichletF", 5, (void *)sample_DirichletF, 0);
+	PL_register_foreign("sample_DirichletF",5, (void *)sample_DirichletF, 0);
 	PL_register_foreign("sample_Binomial",  5, (void *)sample_Binomial, 0);
-	PL_register_foreign("sample_Stable",      5, (void *)sample_Stable, 0);
+	PL_register_foreign("sample_Stable",    5, (void *)sample_Stable, 0);
 	PL_register_foreign("sample_Discrete",  5, (void *)sample_Discrete, 0);
-	PL_register_foreign("sample_DiscreteF",  5, (void *)sample_DiscreteF, 0);
+	PL_register_foreign("sample_DiscreteF", 5, (void *)sample_DiscreteF, 0);
 
-	PL_register_foreign("sample_Single_", 1, (void *)sample_Single_, 0);
-	PL_register_foreign("sample_Double_", 1, (void *)sample_Double_, 0);
+	PL_register_foreign("prob_Uniform01", 2, (void *)prob_Uniform01, 0);
+	PL_register_foreign("prob_Normal",    2, (void *)prob_Normal, 0);
+	PL_register_foreign("prob_Exponential",    2, (void *)prob_Exponential, 0);
+	PL_register_foreign("prob_Gamma",     3, (void *)prob_Gamma, 0);
+	PL_register_foreign("prob_Poisson",   3, (void *)prob_Poisson, 0);
+	PL_register_foreign("prob_Beta",      4, (void *)prob_Beta, 0);
+	PL_register_foreign("prob_Zeta",      3, (void *)prob_Zeta, 0);
+	PL_register_foreign("prob_Dirichlet", 4, (void *)prob_Dirichlet, 0);
+	PL_register_foreign("prob_Binomial",  4, (void *)prob_Binomial, 0);
+	PL_register_foreign("prob_Discrete",  4, (void *)prob_Discrete, 0);
 
 	PL_register_foreign("crp_prob", 5, (void *)crp_prob, 0);
 	PL_register_foreign("crp_sample", 5, (void *)crp_sample, 0);
@@ -161,6 +182,11 @@ install_t install() {
 	//test();
 }
 
+
+static int check(int cond, const char *expected, term_t got) {
+	if (!cond) return PL_domain_error(expected, got);
+	else return TRUE;
+}
 
 // unify Prolog BLOB with RndState structure
 static int unify_state(term_t state,RndState *S) {
@@ -363,6 +389,15 @@ static int unify_float_state(term_t x, double z, term_t s, RndState *S) {
 //	return  PL_unify_integer(x, z) && unify_state(s,S);
 //}
 	
+foreign_t sample_Single_(term_t x) {
+	return PL_unify_float(x, RngStream_Float(&CurrentState.g,&CurrentState.g));
+}
+
+foreign_t sample_Double_(term_t x) {
+	return PL_unify_float(x, RngStream_Double(&CurrentState.g,&CurrentState.g));
+}
+
+
 foreign_t sample_Raw(term_t x, term_t s0, term_t s1) {
 	RndState S;
 	return get_state(s0,&S) &&
@@ -372,8 +407,6 @@ foreign_t sample_Raw(term_t x, term_t s0, term_t s1) {
 
 foreign_t sample_Uniform01(term_t x, term_t s0, term_t s1) {
 	RndState S;
-//	return get_state(s0,&S) &&
-//	       unify_float_state(x, Uniform(&S), s1, &S);
 	return get_state(s0, &S) && PL_unify_float(x, Uniform(&S)) && unify_state(s1, &S);
 }
 
@@ -401,6 +434,7 @@ foreign_t sample_Gamma(term_t a, term_t x, term_t s0, term_t s1) {
 			 unify_float_state(x, Gamma(&S,A), s1, &S);
 }
 
+
 foreign_t sample_Poisson(term_t a, term_t x, term_t s0, term_t s1) {
 	RndState S;
 	double A;
@@ -410,7 +444,6 @@ foreign_t sample_Poisson(term_t a, term_t x, term_t s0, term_t s1) {
 	       PL_unify_integer(x, Poisson(&S,A)) &&
 			 unify_state(s1, &S);
 }
-
 
 foreign_t sample_Dirichlet(term_t n, term_t a, term_t x, term_t s0, term_t s1)
 {
@@ -474,11 +507,10 @@ foreign_t sample_Zeta(term_t a, term_t x, term_t s0, term_t s1) {
 
 	return get_state(s0,&S) &&
 		    get_double(a,&A) &&
-			 PL_unify_float(x, Zeta(&S,A)) &&
+			 check(A>1.0, "Zeta parameter > 1.0", a) &&
+			 PL_unify_integer(x, Zeta(&S,A)) &&
 			 unify_state(s1, &S);
 }
-
-
 
 foreign_t sample_Binomial(term_t p, term_t n, term_t x, term_t s0, term_t s1) {
 	RndState S;
@@ -541,13 +573,53 @@ foreign_t sample_DiscreteF(term_t n, term_t p, term_t x, term_t s0, term_t s1)
 	} else return FALSE;
 }
 
-foreign_t sample_Single_(term_t x) {
-	return PL_unify_float(x, RngStream_Float(&CurrentState.g,&CurrentState.g));
+foreign_t prob_Uniform01(term_t x, term_t p)   { double X; return get_double(x,&X) && PL_unify_float(p, pdf_Uniform(X)); }
+foreign_t prob_Normal(term_t x, term_t p)      { double X; return get_double(x,&X) && PL_unify_float(p, pdf_Normal(X)); }
+foreign_t prob_Exponential(term_t x, term_t p) { double X; return get_double(x,&X) && PL_unify_float(p, pdf_Exponential(X)); }
+foreign_t prob_Gamma(term_t a, term_t x, term_t p)   { double A, X; return get_double(a,&A) && get_double(x,&X) && PL_unify_float(p, pdf_Gamma(A,X)); }
+foreign_t prob_Poisson(term_t a, term_t x, term_t p) { double A, X; return get_double(a,&A) && get_double(x,&X) && PL_unify_float(p, pdf_Poisson(A,X)); }
+foreign_t prob_Zeta(term_t a, term_t x, term_t p)    { 
+	double A, X; 
+	return get_double(a,&A) && 
+			 check(A>1.0, "Zeta parameter > 1.0", a) &&
+	     	 get_double(x,&X) && PL_unify_float(p, pdf_Zeta(A,X)); }
+
+foreign_t prob_Beta(term_t a, term_t b, term_t x, term_t p) { 
+	double A, B, X; 
+	return get_double(a,&A) && get_double(b,&B) && get_double(x,&X) 
+		 && PL_unify_float(p, pdf_Gamma(A,X)); 
 }
 
-foreign_t sample_Double_(term_t x) {
-	return PL_unify_float(x, RngStream_Double(&CurrentState.g,&CurrentState.g));
+foreign_t prob_Binomial(term_t q, term_t n, term_t x, term_t p) { 
+	double Q; 
+	long N, X; 
+	return get_double(q,&Q) && get_long(n,&N) && get_long(x,&X) 
+		 && PL_unify_float(p, pdf_Binomial(Q,N,X));
 }
+
+foreign_t prob_Dirichlet(term_t n, term_t a, term_t x, term_t p) { 
+	long N;
+	double *A=NULL, *X=NULL; 
+	int r = get_long(n,&N) 
+	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A) 
+	     && alloc_array(N,sizeof(double),(void **)&X) && get_list_doubles(x,X)
+		  && PL_unify_float(p, pdf_Dirichlet(N,A,X)); 
+	if (A) free(A);
+	if (X) free(X);
+	return r;
+}
+
+foreign_t prob_Discrete(term_t n, term_t q, term_t x, term_t p) { 
+	long N, X;
+	double *Q=NULL; 
+   int r = get_long(n,&N) && get_long(x,&X)
+	     && alloc_array(N,sizeof(double),(void **)&Q) && get_list_doubles(q,Q)
+     	  && PL_unify_float(p, pdf_Discrete(N,Q,sum_array(Q,N),X)); 
+	if (Q) free(Q);
+	return r;
+}
+
+
 
 
 // ----------------------------------------------------------------------------
