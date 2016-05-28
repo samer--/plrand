@@ -133,17 +133,22 @@ remove_nth(N,[Y|T1],[Y|T2]) :-
 %
 %	Prepares a predicate for sampling the concentration parameter of a Dirichlet process.
 %	The sampler's =|gem_prior|= arguments must be of the form =|dp(_)|=.
-dp_sampler_teh( gamma(A,B), CX, crp:sample_dp_teh(ApSumKX,B,NX)) :-
+%	Prior specifies the Gamma distribution prior for the concentration parameter,
+%	as =|gamma(a,b)|=, where a is the shape parameter and b is the rate parameter
+%	(ie the inverse of the scale parameter).
+dp_sampler_teh( gamma(A,B), CX, plrand:sample_dp_teh(ApSumKX,B,NX)) :-
 	maplist(sumlist,CX,NX),
 	maplist(length,CX,KX), 
 	sumlist(KX,SumKX), 
 	ApSumKX is A+SumKX.
 
-%% py_sampler_teh( +ThPrior:gamma_prior, +DiscPr:beta_prior, +Counts:list(natural), -S:param_sampler) is det.
+%% py_sampler_teh( +ConcPrior:gamma_prior, +DiscPr:beta_prior, +Counts:list(natural), -S:param_sampler) is det.
 %
 %	Prepares a predicate for sampling the concentration and discount 
 %	parameters of a Pitman-Yor process.
 %	The sampler's =|gem_prior|= arguments must be of the form =|py(_,_)|=.
-py_sampler_teh( ThPrior, DiscPrior, CountsX, crp:Sampler) :-
-	Sampler = sample_py_teh( ThPrior, DiscPrior, CountsX).
+%	See dp_sampler_teh/3 for tha description of the gamma_prior type. DiscPr is a 
+%	Beta distribution prior for the concentration parameter.
+py_sampler_teh( ThPrior, DiscPrior, CountsX, Sampler) :-
+	Sampler = plrand:sample_py_teh( ThPrior, DiscPrior, CountsX).
 
