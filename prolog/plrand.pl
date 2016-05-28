@@ -1,8 +1,3 @@
-/*
- * Prolog part of random generator library
- * Samer Abdallah (2009)
-*/
-	  
 :- module(plrand, [
 	 	get_rnd_state/1	% -state
 	,	set_rnd_state/1	% +state
@@ -39,11 +34,11 @@
       * state
          The state of a random generator, as a blob atom.
       * state_term
-         The state represented as an ordinary Prolog term that can be stored as text.
+         A state represented as an ordinary Prolog term that can be written as text.
       * jump
-         A blob representing the operator to a skip ahead.
+         A blob representing an operator to advance a state by several steps
       * stream
-         A spittable stream, containing a =|state|= and a =|jump|=.
+         A splittable stream, containing a =|state|= and a =|jump|=.
       * prob
          A floating point number between 0 and 1.
 
@@ -76,6 +71,8 @@
    prob_Dirichlet/4
    prob_Binomial/4
    ==
+
+   @copyright Samer Abdallah (2009--2016)
 */
 
 :-	use_foreign_library(foreign(plrand)).

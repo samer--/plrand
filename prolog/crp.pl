@@ -37,6 +37,12 @@
 	param_sampler == pred(+gem_param, -gem_param, +rndstate, -rndstate).
 	==
 
+   This may seems like a very low-level library for building CRPs, leaving a lot
+   for the implemeenter to do, but this is intential, to allow the implementer
+   freedom to decide how to manage the states (terms of type classes(_)) of one
+   or more CRPs, as well as the state of the random generator, in whatever way
+   is most appropriate. See the the example implementation of test_crp.pl for
+   one way to do this.
 */
 
 % :- use_module(library(dcg_core)).
