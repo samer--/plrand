@@ -23,7 +23,7 @@
    takes a concentration parameter and a discount parameter, representated as =|py(Conc,Disc)|=.
 
 	==
-	gem_model   ---> dp(nonneg) ; py(nonneg,0--1).
+	gem_param   ---> dp(nonneg) ; py(nonneg,0--1).
 	gamma_prior ---> gamma(nonneg, nonneg).
 	beta_prior  ---> beta(nonneg, nonneg).
    classes(A)  ---> classes(natural, list(nonneg), list(A)).
@@ -34,7 +34,7 @@
    class_idx == natural
    prob      == 0--1 
 
-	param_sampler == pred(+gem_model, -gem_model, +rndstate, -rndstate).
+	param_sampler == pred(+gem_param, -gem_param, +rndstate, -rndstate).
 	==
 
 */
@@ -45,13 +45,13 @@
 :- use_module(library(plrand),   [spawn/3, crp_prob/5, crp_sample/5, crp_sample_obs/7, crp_sample_rm/5]).
 
 
-%% crp_prob( +GEM:gem_model, +Classes:classes(A), +X:A, +PBase:prob, -Prob:prob) is det.
+%% crp_prob( +GEM:gem_param, +Classes:classes(A), +X:A, +PBase:prob, -Prob:prob) is det.
 %
 %  Compute the probability Prob of observing X given a CRP with already observed
 %  values in Classes if the probability of drawing X from the base distribution is PBase.
 
 
-%% crp_sample( +GEM:gem_model, +Classes:classes(A), -A:action(A))// is det.
+%% crp_sample( +GEM:gem_param, +Classes:classes(A), -A:action(A))// is det.
 %
 %  Sample a new value from CRP, Action A is either new, which means
 %  that the user should sample a new value from the base distribtion,
@@ -59,7 +59,7 @@
 %  Operates in random state DCG.
 
 
-%% crp_sample_obs( +GEM:gem_model, +Classes:classes(A), +X:A, +PBase:prob, -A:action)// is det.
+%% crp_sample_obs( +GEM:gem_param, +Classes:classes(A), +X:A, +PBase:prob, -A:action)// is det.
 %
 %  Sample action appropriate for observation of value X. PBase is the
 %  probability of X from the base distribution. Action A is new
