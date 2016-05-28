@@ -44,6 +44,8 @@
          A blob representing the operator to a skip ahead.
       * stream
          A spittable stream, containing a =|state|= and a =|jump|=.
+      * prob
+         A floating point number between 0 and 1.
 
    ---+++ Available but not exported 
 
@@ -56,12 +58,23 @@
    sample_Gamma(+nonneg, -float)//
    sample_Poisson(+nonneg, -natural)//
    sample_Zeta(+nonneg, -natural)//
-   sample_Discrete//3
-   sample_DiscreteF//3
-   sample_Dirichlet//3
-   sample_DirichletF//3
-   sample_Stable//3
-   sample_Binomial//3
+   sample_Discrete(+nonneg, +list(prob), -natural)//
+   sample_DiscreteF(+nonneg, +array(prob), -natural)//
+   sample_Dirichlet(+nonneg, +list(nonneg), -list(prob))//
+   sample_DirichletF(+nonneg, +array(nonneg), -array(prob))//
+   sample_Stable(+float, +float, -float)//
+   sample_Binomial(+prob, +natural, -natural)//
+
+   prob_Uniform01(+float, -prob)
+   prob_Normal(+float, -prob)
+   prob_Exponential(+nonneg, -prob)
+   prob_Beta(+nonneg, +nonneg, +nonneg, -prob)
+   prob_Gamma(+nonneg, +float, -prob)
+   prob_Poisson(+nonneg, +natural, -prob)
+   prob_Zeta(+nonneg, +natural, -prob)
+   prob_Discrete/4
+   prob_Dirichlet/4
+   prob_Binomial/4
    ==
 */
 
