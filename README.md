@@ -14,29 +14,15 @@ The state can be efficiently advanced a known number of steps - this
 supports stream splitting, by partitioning the sequence of 2^191
 values into subsequences.
 
+Predicates for sampling from and computing probabilities from several
+distributions are included, but not exported -- there is a nicer interface
+to them in progress -- but in the mean time, see examples/test_crp.pl
+for usage.
+
 ### PREREQUISITES
 
-SWI Prolog
-GSL (GNU Scientific Library) for Zeta distribution [optional]
-
-
-### INSTALLATION
-
-Edit the variables in the top half of the root Makefile if necessary.
-
-If you don't have GSL, you can set HAVE_GSL to 0 to disable this feature.
-In fact, all that happens in this case is that calls to two GSL functions
-are replaced with NAN so that attempts to sample from the Zeta distribution
-will not work.
-
-The build process installs a Prolog module file and a foreign library
-to ~/lib/prolog by default. If you wish to change this, edit the root Makefile
-accordingly and be sure that the referenced directories are in your
-Prolog file_search_path.
-
-In the root directory of this package, type
-
-	$ make install
+GSL (GNU Scientific Library) for Zeta distribution and probability computations [optional]
+Pack genutils to run examples/test_crp.pl
 
 
 ### ACKNOWLEDGEMENTS
