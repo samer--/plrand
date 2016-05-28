@@ -103,3 +103,14 @@ remove_from_class(N) -->
 	dec_class(N,C,_),
 	({C>0}; {C=0}, remove_class(N)).
 	
+gem_samples(gamma(A,B), crp(dp(Conc), _, Ref), N, Concs) -->
+   \< store_get(Ref, classes(_,Counts,_)), 
+   {dp_sampler_teh(gamma(A,B), [Counts], Sampler)},
+   \> collect_dp_samples(N, Sampler, Conc, Concs).
+
+collect_dp_samples(0, _, _, []) --> [].
+collect_dp_samples(N, Sampler, Conc0, [Conc1|Concs]) -->
+   {succ(M,N)},
+   call(Sampler, dp(Conc0), dp(Conc1)),
+   collect_dp_samples(M, Sampler, Conc1, Concs).
+
