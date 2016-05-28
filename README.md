@@ -19,6 +19,8 @@ distributions are included, but not exported -- there is a nicer interface
 to them in progress -- but in the mean time, see examples/test_crp.pl
 for usage.
 
+See plrand.pl and crp.pl for more information.
+
 ### PREREQUISITES
 
 GSL (GNU Scientific Library) for Zeta distribution and probability computations [optional]
