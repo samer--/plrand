@@ -3,7 +3,7 @@
 :- use_module(library(dcg_core)).
 :- use_module(library(data/store)).
 :- use_module(library(plrand)).
-:- use_module(library(crp)).
+:- use_module(library(prob/crp)).
 
 /* 
    This is an example of how to build Dirichlet processes using the

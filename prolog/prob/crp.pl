@@ -158,3 +158,68 @@ dp_sampler_teh( gamma(A,B), CX, plrand:sample_dp_teh(ApSumKX,B,NX)) :-
 py_sampler_teh( ThPrior, DiscPrior, CountsX, Sampler) :-
 	Sampler = plrand:sample_py_teh( ThPrior, DiscPrior, CountsX).
 
+
+/*  ---------------------------------------------------------------------------------------i
+    PURE PROLOG VERSIONS (not including MCMC parameter samplers)
+
+:- use_module(library(math), [sub/3, equal/3, stoch/3, mul/3]).
+
+sample_discrete(O,P,Y) --> {length(P,N)}, plrand:sample_Discrete(N,P,X), {nth1(X,O,Y)}.
+
+crp_prob( Alpha, classes(_,Counts,Vals), X, PProb, P) :-
+	counts_dist( Alpha, Counts, Counts1),
+	stoch( Counts1, Probs, _),
+	maplist( equal(X), Vals, Mask),
+	maplist( mul, [PProb | Mask], Probs, PostProbs),
+	sumlist( PostProbs, P).
+
+%% crp_sample( +GEM:gem_model, +Classes:classes(A), -A:action(A))// is det.
+%
+%  Sample a new value from CRP, Action A is either new, which means
+%  that the user should sample a new value from the base distribtion,
+%  or old(X,C), where X is an old value and C is the index of its class.
+%  Operates in random state DCG.
+crp_sample( Alpha, classes(_,Counts,Vals), Action, RS1, RS2) :-
+	counts_dist(Alpha, Counts, Counts1),
+	sample_discrete(Counts1,Z,RS1,RS2),
+	( Z>1 -> succ(C,Z), nth1(C,Vals,X), Action=old(X,C)
+	; Action=new).
+
+
+%% crp_sample_obs( +GEM:gem_model, +Classes:classes(A), +X:A, +PProb:float, -A:action)// is det.
+%
+%  Sample class appropriate for observation of value X. PProb is the
+%  base probability of X from the base distribution. Action A is new
+%  or old(Class).
+%  Operates in random state DCG.
+crp_sample_obs( Alpha, classes(_,Counts,Vals), X, ProbX, A, RS1, RS2) :-
+	counts_dist( Alpha, Counts, [CNew|Counts1]),	
+	PNew is CNew*ProbX,
+	maplist( posterior_count(X),Vals,Counts1,Counts2),
+	sample_discrete( [PNew|Counts2], Z, RS1, RS2),
+	(Z=1 -> A=new; succ(C,Z), A=old(C)).
+
+
+%% crp_sample_rm( +Classes:classes(A), +X:A, -C:natural)// is det.
+%
+%  Sample appropriate class from which to remove value X.
+%  Operates in random state DCG.
+crp_sample_rm( classes(_,Counts,Vals), X, Class, RS1, RS2) :-
+	maplist(posterior_count(X),Vals,Counts,Counts1),
+	sample_discrete( Counts1, Class, RS1, RS2).
+
+
+posterior_count(X,Val,Count,PC) :- X=Val -> PC=Count; PC=0.
+
+% -----------------------------------------------------------
+% Dirichlet process and Pitman-Yor process
+% pseudo-counts models.
+
+counts_dist(dp(Alpha),Counts,[Alpha|Counts]) :- !.
+counts_dist(py(_,_),[],[1]) :- !.
+counts_dist(py(Alpha,Discount),Counts,[CNew|Counts1]) :- !,
+	length(Counts,K),
+	CNew is Alpha+Discount*K,
+	maplist(sub(Discount),Counts,Counts1).
+
+*/
