@@ -36,7 +36,6 @@ using the DCG idiom.
 :- use_module(library(dcg_core)). 
 :- use_module(library(dcg_pair)). 
 :- use_module(library(plrand),[]).
-% :- use_module(library(utils)).
 
 term_expansion(wrap_rs(Arity,Name,Pred), Head :- plrand:Body) :-
    length(A1, Arity),
@@ -82,16 +81,23 @@ discrete(Ps,I,rs(S1),rs(S2)) :- length(Ps,N), plrand:sample_Discrete(N,Ps,I,S1,S
 
 %% discrete( +O:list(T), +A:list(prob), -X:T)// is det.
 %  Sample from a discrete distribution over list of objects.
-discrete(Xs,Ps,X,p(P1),p(P2))   :- !, nth1(I,Xs,X), nth1(I,Ps,P), P2 is P1*P.
-discrete(Xs,Ps,X,rs(S1),rs(S2)) :- length(Ps,N), plrand:sample_Discrete(N,Ps,I,S1,S2), nth1(I,Xs,X).
+discrete(Xs,Ps,X,rs(S1),rs(S2)) :- !, length(Ps,N), plrand:sample_Discrete(N,Ps,I,S1,S2), nth1(I,Xs,X).
+discrete(Xs,Ps,X,p(P1),p(P2))   :-
+   findall(P, (nth1(I,Xs,X), nth1(I,Ps,P)), Probs),
+   sumlist(Probs,P), 
+   P2 is P1*P.
 
-discreteT(Xs,Ps,X,p(P1),p(P2))   :- !, arg(I,Xs,X), arg(I,Ps,P), P2 is P1*P.
-discreteT(Xs,Ps,X,rs(S1),rs(S2)) :- functor(Ps,_,N), plrand:sample_DiscreteF(N,Ps,I,S1,S2), arg(I,Xs,X).
+discreteT(Xs,Ps,X,rs(S1),rs(S2)) :- !, functor(Ps,_,N), plrand:sample_DiscreteF(N,Ps,I,S1,S2), arg(I,Xs,X).
+discreteT(Xs,Ps,X,p(P1),p(P2))   :- 
+   findall(P, (arg(I,Xs,X), arg(I,Ps,P)), Probs), 
+   sumlist(Probs,P),
+   P2 is P1*P.
 
 %% uniform01( -X:float)// is det.
 % 
 %  Sample X from uniform distribution on [0,1).
-uniform01(_,p(P),p(P)) :- !.
+uniform01(_,p(_),p(0)) :- !.
+uniform01(_,pd(P),pd(P)) :- !.
 wrap_rs(1,uniform01,sample_Uniform01).
 
 %% normal( -X:float)// is det.
@@ -121,13 +127,22 @@ dirichlet(A,X,p(P1),p(P2))   :- length(A,N), plrand:prob_Dirichlet(N,A,X,P), P2 
 %  Uniform distribution over a finite number of items.
 %  uniform :: list(A) -> expr(A).
 
-uniform(O,X,p(P1),p(P2)) :- !, length(O,N), member(X,O), P2 is P1/N.
-uniform(O,X,rs(S1),rs(S2)) :- 
+uniform(O,X,rs(S1),rs(S2)) :- !,
 	length(O,N), 
 	plrand:sample_Uniform01(U,S1,S2),
 	I is 1+floor(N*U), nth1(I,O,X).
+uniform(O,X,p(P1),p(P2)) :- 
+   length(O,N), 
+   findall(I,nth1(X,O,I),Is),
+   length(Is,K), 
+   P2 is K*P1/N.
 
-uniformT(O,X,p(P1),p(P2)) :- !, functor(O,_,N), arg(_,O,X), P2 is P1/N.
+uniformT(O,X,p(P1),p(P2)) :- !, 
+   functor(O,_,N), 
+   findall(I,arg(I,O,X),Is),
+   length(Is,K),
+   P2 is K*P1/N.
+
 uniformT(O,X,rs(S1),rs(S2)) :- 
    functor(O,_,N),
 	plrand:sample_Uniform01(U,S1,S2),
