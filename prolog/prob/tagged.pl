@@ -55,7 +55,7 @@ term_expansion(wrap_cont(Arity,Name,Pred), [Head1, (Head :- (plrand:Body, P2 is 
 
 %% bernoulli( +A:prob, -X:oneof([0,1]))// is det.
 %  Sample binary random variable.
-bernoulli(P,X,rs(S1),rs(S2)) :- !, plrand:sample_Uniform01(U,S1,S2), U<P->X=1;X=0, S1=S2.
+bernoulli(P,X,rs(S1),rs(S2)) :- !, plrand:sample_Uniform01(U,S1,S2), (U<P->X=1;X=0).
 bernoulli(P,0,P1,P2) :- !, P2 is (1-P)*P1.
 bernoulli(P,1,P1,P2) :- P2 is P*P1.
 
