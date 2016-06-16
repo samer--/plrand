@@ -1,6 +1,6 @@
 :- module(prob_tagged,
 		[	uniform01//1
-		,	uniform//2, uniformT//2
+		,	uniform//2, uniformT//2, uniformP//2
 		,	normal//1
 		,	gaussian//3
 		,	exponential//1
@@ -147,6 +147,13 @@ uniformT(O,X,rs(S1),rs(S2)) :-
    functor(O,_,N),
 	plrand:sample_Uniform01(U,S1,S2),
 	I is 1+floor(N*U), arg(I,O,X).
+
+%% uniformP(+P:dcg(-A), -A)// is det.
+%  Sample uniformly from all solutions to call(P,X).
+:- meta_predicate uniformP(3,-,+,-).
+uniformP(P,X) --> 
+   {findall(Y,call(P,Y),YY)}, 
+   uniform(YY,X).
 
 %% beta( +A:nonneg, +B:nonneg, -X:prob)// is det.
 %  Sample from beta distribution.
