@@ -18,7 +18,7 @@
 :- use_module(library(dcg_pair)).
 :- use_module(library(dcg_macros)).
 :- use_module(library(data/store), [store_add//2, store_get//2, store_apply//2]).
-:- use_module(library(prob/crp),   [empty_classes/1, crp_sample//3]).
+:- use_module(library(prob/crp),   [empty_classes/1, crp_sample//3, add_class//2, inc_class//1]).
 :- use_module(library(prob/strand), [(*)//4]).
 
 %% memo(+F:dcg(A,B,strand), -G:dcg(A,B,strand))// is det.

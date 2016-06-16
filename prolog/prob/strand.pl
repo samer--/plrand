@@ -1,8 +1,7 @@
 :- module(strand, [ strand/0
                   , strand/1
                   , clear//0
-                  , holding_store//1
-                  , lift//3
+                  , hold_store//1
                   , (*)/4
                   , (*)//4
                   , constf//3
@@ -19,8 +18,7 @@
 */
 
 :- meta_predicate strand(//)
-                , hold_left(//,?,?)
-                , lift(3,?,?)
+                , hold_store(//,?,?)
                 , *(2,2,?,?)
                 , *(4,4,?,?,?,?)
                 , constf(3,?,?,?,?)
@@ -58,9 +56,9 @@ strand(Cmd) :-
 clear --> \< set_with(store_new).
 
 
-%% holding_store(+Cmd:dcg(strand))// is det.
+%% hold_store(+Cmd:dcg(strand))// is det.
 %  Runs Cmd leaving the store unchanged.
-holding_store(Cmd) --> \< get(H), \> run_left(Cmd,H,_).
+hold_store(Cmd) --> \< get(H), \> run_left(Cmd,H,_).
 
 % pure and stateful function composition
 *(P,Q,X,Z) --> call(Q,X,Y), call(P,Y,Z).
