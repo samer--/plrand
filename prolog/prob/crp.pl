@@ -7,7 +7,6 @@
 
 		,	crp_prob/5
 		,	crp_sample/5
-		,	crp_sample/6
 		,	crp_sample_obs/7
 		,	crp_sample_obs/8
 		,	crp_sample_rm/5
