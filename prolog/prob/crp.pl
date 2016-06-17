@@ -78,6 +78,8 @@ crp_sample(GEM, Classes, Action) --> crp_sample(GEM, Classes, Action, _).
 %  probability of the observation, equivalent to calling crp_prob with X BEFORE
 %  calling crp_sample_obs//5.
 %  Operates in random state DCG.
+crp_sample_obs(GEM, Classes, X, PBase, Action) --> 
+   crp_sample(GEM, Classes, X, PBase, Action, _).
 
 
 %% crp_sample_rm( +Classes:classes(A), +X:A, -N:class_idx)// is det.
