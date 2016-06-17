@@ -9,6 +9,7 @@
 		,	crp_sample/5
 		,	crp_sample/6
 		,	crp_sample_obs/7
+		,	crp_sample_obs/8
 		,	crp_sample_rm/5
 
 		,	dp_sampler_teh/3
@@ -49,7 +50,7 @@
 % :- use_module(library(dcg_core)).
 % :- use_module(library(dcg_macros)).
 :- use_module(library(apply_macros)).
-:- use_module(library(plrand),   [spawn/3, crp_prob/5, crp_sample/5, crp_sample/6, crp_sample_obs/7, crp_sample_rm/5]).
+:- use_module(library(plrand),   [spawn/3, crp_prob/5, crp_sample/5, crp_sample_obs/8, crp_sample_rm/5]).
 
 
 %% crp_prob( +GEM:gem_param, +Classes:classes(A), +X:A, +PBase:prob, -Prob:prob) is det.
@@ -58,15 +59,14 @@
 %  values in Classes if the probability of drawing X from the base distribution is PBase.
 
 
-%% crp_sample( +GEM:gem_param, +Classes:classes(A), -A:action(A), -P:prob)// is det.
+%% crp_sample( +GEM:gem_param, +Classes:classes(A), -A:action(A))// is det.
 %% crp_sample( +GEM:gem_param, +Classes:classes(A), -A:action(A))// is det.
 %
 %  Sample a new value from CRP, Action A is either new, which means
 %  that the user should sample a new value from the base distribtion,
 %  or old(X,ID), where X is an old value and C is the class index.
-%  Operates in random state DCG. crp_sample//4 additionally returns the probability
+%  Operates in random state DCG.
 %  of the action choosen.
-crp_sample(GEM, Classes, Action) --> crp_sample(GEM, Classes, Action, _).
 
 
 %% crp_sample_obs( +GEM:gem_param, +Classes:classes(A), +X:A, +PBase:prob, -A:action, -P:prob)// is det.

@@ -75,7 +75,7 @@ foreign_t sample_Single_( term_t x);
 foreign_t sample_Double_( term_t x); 
 
 foreign_t crp_prob( term_t alpha, term_t classes, term_t x, term_t pprob, term_t p);
-foreign_t crp_sample( term_t alpha, term_t classes, term_t action, term_t prob, term_t rnd1, term_t rnd2);
+foreign_t crp_sample( term_t alpha, term_t classes, term_t action, term_t rnd1, term_t rnd2);
 foreign_t crp_sample_obs( term_t alpha, term_t classes, term_t x, term_t probx, term_t act, term_t prob, term_t rnd1, term_t rnd2);
 foreign_t crp_sample_rm( term_t classes, term_t x, term_t class, term_t rnd1, term_t rnd2);
 foreign_t sample_dp_teh( term_t ApSumKX, term_t B, term_t NX, term_t p1, term_t p2, term_t rnd1, term_t rnd2);
@@ -149,7 +149,7 @@ install_t install() {
 	PL_register_foreign("prob_Discrete",  4, (void *)prob_Discrete, 0);
 
 	PL_register_foreign("crp_prob", 5, (void *)crp_prob, 0);
-	PL_register_foreign("crp_sample", 6, (void *)crp_sample, 0);
+	PL_register_foreign("crp_sample", 5, (void *)crp_sample, 0);
 	PL_register_foreign("crp_sample_obs", 8, (void *)crp_sample_obs, 0);
 	PL_register_foreign("crp_sample_rm", 5, (void *)crp_sample_rm, 0);
 	PL_register_foreign("sample_dp_teh", 7, (void *)sample_dp_teh, 0);
@@ -673,7 +673,7 @@ foreign_t crp_prob( term_t Alpha, term_t Classes, term_t X, term_t PProb, term_t
 /*
 
 
-%% crp_sample( +GEM:gem_model, +Classes:classes(A), -A:action(A), -P:prob)// is det.
+%% crp_sample( +GEM:gem_model, +Classes:classes(A), -A:action(A))// is det.
 %
 %  Sample a new value from CRP, Action A is either new, which means
 %  that the user should sample a new value from the base distribtion,
@@ -682,13 +682,12 @@ foreign_t crp_prob( term_t Alpha, term_t Classes, term_t X, term_t PProb, term_t
 crp_sample( Alpha, classes(Counts,Vals), Action, Prob, RS1, RS2) :-
 	counts_dist(Alpha, Counts, Counts1),
 	discrete(Counts1,Z,RS1,RS2),
-	discrete(Counts1,Z,p(1),p(Prob)),
 	( Z>1 -> succ(C,Z), nth1(C,Vals,X), Action=old(X,C)
 	; Action=new).
 
 */
 
-foreign_t crp_sample( term_t Alpha, term_t Classes, term_t Action, term_t Prob, term_t Rnd1, term_t Rnd2)
+foreign_t crp_sample( term_t Alpha, term_t Classes, term_t Action, term_t Rnd1, term_t Rnd2)
 {
 	term_t Counts=PL_new_term_ref();
 	term_t Vals=PL_new_term_ref();
@@ -702,8 +701,7 @@ foreign_t crp_sample( term_t Alpha, term_t Classes, term_t Action, term_t Prob, 
 		&& get_state(Rnd1,&rs);
 
 	if (rc) {
-		double total = sum_array(dist,len+1);
-		int z=Discrete( &rs, len+1, dist, total);
+		int z=Discrete( &rs, len+1, dist, sum_array(dist,len+1));
 
 		if (z==0) { rc = PL_unify_atom(Action,atom_new); }
 		else { 
@@ -712,7 +710,6 @@ foreign_t crp_sample( term_t Alpha, term_t Classes, term_t Action, term_t Prob, 
 			while (i<z && PL_get_list(Vals,X,Vals)) i++;
 			rc = (i==z) && PL_unify_term(Action, PL_FUNCTOR, functor_old2, PL_TERM, X, PL_INT, z);
 		}
-		rc &= PL_unify_float(Prob,dist[z]/total);
 	}
 	if (dist) free(dist); 
 	return rc && unify_state(Rnd2, &rs);
