@@ -660,11 +660,11 @@ foreign_t crp_prob( term_t Alpha, term_t Classes, term_t X, term_t PProb, term_t
 		term_t Val = PL_new_term_ref();
 		int i;
 
-		stoch(dist,len+1);
 		prob = pprob*dist[0];
 		for (i=1; i<=len && PL_get_list(Vals,Val,Vals); i++) {
 			if (PL_unify(Val,X)) prob += dist[i];
 		}
+		prob /= sum_array(dist,len+1);
 	} else rc=0;
 	if (dist) free(dist);
 	return rc && PL_unify_float(Prob,prob);

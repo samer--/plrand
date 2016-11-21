@@ -2,12 +2,6 @@
                   , strand/1
                   , clear//0
                   , hold_store//1
-                  , (*)/4
-                  , (*)//4
-                  , constf//3
-                  , pairf//3
-                  , (*:)//3
-                  , op(600,yfx,*:)
                   , pure//2
                   ]).
 
@@ -19,10 +13,6 @@
 
 :- meta_predicate strand(//)
                 , hold_store(//,?,?)
-                , *(2,2,?,?)
-                , *(4,4,?,?,?,?)
-                , constf(3,?,?,?,?)
-                , pairf(3,3,?,?,?)
                 , pure(3,-,+,-)
                 .
 
@@ -32,6 +22,7 @@
 :- use_module(library(dcg_shell)).
 :- use_module(library(dcg_core)).
 :- use_module(library(dcg_pair)).
+:- use_module(library(callutils)).
 :- use_module(library(data/store)).
 
 
@@ -55,20 +46,9 @@ strand(Cmd) :-
 %  Clear everything out of the store. Runs in strand DCG.
 clear --> \< set_with(store_new).
 
-
 %% hold_store(+Cmd:dcg(strand))// is det.
 %  Runs Cmd leaving the store unchanged.
 hold_store(Cmd) --> \< get(H), \> run_left(Cmd,H,_).
-
-% pure and stateful function composition
-*(P,Q,X,Z) --> call(Q,X,Y), call(P,Y,Z).
-*(P,Q,X,Z) :- call(Q,X,Y), call(P,Y,Z).
-
-% stateful piping of generator G into function P
-*:(P,G,Y) --> call(G,X), call(P,X,Y).
-
-pairf(F,G,X-Y) --> call(F,X), call(G,Y).
-constf(F,_,X) --> call(F,X).
 
 %% pure(+Dist:tagged_dist(A), +X:A, +P1:tagged_prob, -P2:tagged_prob) is det.
 %% pure(+Dist:tagged_dist(A), -X:A, +S1:pair(store, rndstate), -S2:pair(store,rndstate)) is det.
