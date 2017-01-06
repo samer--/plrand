@@ -3,6 +3,7 @@
           , gdp//3
           , memo//2
           , memo_lookup//3
+          , gdp_info/3
           , gdp_info//3
           , gdpmem_info//4
           ]).
@@ -69,7 +70,9 @@ crp_action(new,Ref,H,X) -->
 crp_action(old(X,Idx),Ref,_,X) -->
    \< store_apply(Ref,inc_class(Idx)).
 
-gdp_info(rmemo:crp(Ref,GEM,_),GEM, Classes) -->
+gdp_info(rmemo:crp(_,GEM,Base), GEM, Base).
+
+gdp_info(rmemo:crp(Ref,GEM,_), GEM, Classes) -->
    \< store_get(Ref,Classes).
 
 %% gdpmem(+GEM:gem_param, +Base:dcg(+B,-A,strand), -CRP:dcg(+B,-A,strand))// is det.

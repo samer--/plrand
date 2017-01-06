@@ -133,9 +133,8 @@ uniform(O,X,rs(S1),rs(S2)) :- !,
 	I is 1+floor(N*U), nth1(I,O,X).
 uniform(O,X,p(P1),p(P2)) :- 
    length(O,N), 
-   findall(I,nth1(X,O,I),Is),
-   length(Is,K), 
-   P2 is K*P1/N.
+   aggregate(count,member(X,O),K),
+   P2 is P1*K/N.
 
 uniformT(O,X,p(P1),p(P2)) :- !, 
    functor(O,_,N), 
