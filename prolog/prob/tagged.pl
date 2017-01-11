@@ -83,15 +83,13 @@ discrete(Ps,I,rs(S1),rs(S2)) :- length(Ps,N), plrand:sample_Discrete(N,Ps,I,S1,S
 %  Sample from a discrete distribution over list of objects.
 discrete(Xs,Ps,X,rs(S1),rs(S2)) :- !, length(Ps,N), plrand:sample_Discrete(N,Ps,I,S1,S2), nth1(I,Xs,X).
 discrete(Xs,Ps,X,p(P1),p(P2))   :-
-   findall(P, (nth1(I,Xs,X), nth1(I,Ps,P)), Probs),
-   sumlist(Probs,P), 
-   P2 is P1*P.
+   aggregate(sum(P), I^(nth1(I,Xs,X), nth1(I,Ps,P)), Prob),
+   P2 is P1*Prob.
 
 discreteT(Xs,Ps,X,rs(S1),rs(S2)) :- !, functor(Ps,_,N), plrand:sample_DiscreteF(N,Ps,I,S1,S2), arg(I,Xs,X).
 discreteT(Xs,Ps,X,p(P1),p(P2))   :- 
-   findall(P, (arg(I,Xs,X), arg(I,Ps,P)), Probs), 
-   sumlist(Probs,P),
-   P2 is P1*P.
+   aggregate(sum(P), I^(arg(I,Xs,X), arg(I,Ps,P)), Prob), 
+   P2 is P1*Prob.
 
 %% uniform01( -X:float)// is det.
 % 
@@ -138,8 +136,7 @@ uniform(O,X,p(P1),p(P2)) :-
 
 uniformT(O,X,p(P1),p(P2)) :- !, 
    functor(O,_,N), 
-   findall(I,arg(I,O,X),Is),
-   length(Is,K),
+   aggregate(count,I^arg(I,O,X),K),
    P2 is K*P1/N.
 
 uniformT(O,X,rs(S1),rs(S2)) :- 
