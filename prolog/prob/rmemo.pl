@@ -2,6 +2,7 @@
           [ gdpmem//3
           , gdp//3
           , memo//2
+          , lazy//2
           , memo_lookup//3
           , gdp_info/3
           , gdp_info//3
@@ -19,7 +20,7 @@
 :- use_module(library(dcg_pair)).
 :- use_module(library(dcg_macros)).
 :- use_module(library(callutils),  [(*)//4]).
-:- use_module(library(data/store), [store_add//2, store_get//2, store_apply//2]).
+:- use_module(library(data/store), [store_add//2, store_get//2, store_apply//2, store_set//2]).
 :- use_module(library(prob/crp),   [empty_classes/1, crp_sample//3, add_class//2, inc_class//1]).
 
 %% memo(+F:dcg(A,B,strand), -G:dcg(A,B,strand))// is det.
@@ -40,6 +41,17 @@ memf(TabRef,F,X,Y) -->
    ).
 
 assoc_put(K,V,T1,T2) :- put_assoc(K,T1,V,T2).
+
+:- meta_predicate lazy(3,-,+,-).
+lazy(F,rmemo:lazyf(Ref,F)) -->
+   \< store_add(nothing,Ref).
+
+lazyf(Ref,F,Y) -->
+   \< store_get(Ref,T),
+   (  {T=just(Y)} -> []
+   ;  call(F,Y),
+      \< store_set(Ref,just(Y))
+   ).
 
 %% memo_lookup(+G:dcg(A,B,strand), -X:A, -Y:B)// is nondet.
 %
