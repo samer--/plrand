@@ -3,6 +3,9 @@
                   , clear//0
                   , hold_store//1
                   , pure//2
+                  , pure1//2
+                  , marginal_prob//2
+                  , marginal_prob//3
                   ]).
 
 /** <module> Stateful random generation DCG
@@ -50,9 +53,20 @@ clear --> \< set_with(store_new).
 %  Runs Cmd leaving the store unchanged.
 hold_store(Cmd) --> \< get(H), \> run_left(Cmd,H,_).
 
-%% pure(+Dist:tagged_dist(A), +X:A, +P1:tagged_prob, -P2:tagged_prob) is det.
-%% pure(+Dist:tagged_dist(A), -X:A, +S1:pair(store, rndstate), -S2:pair(store,rndstate)) is det.
-%  Samples or gets probability of value X with tagged distribution Dist.
-pure(Base,X,p(P1),p(P2)) :- call(Base,X,p(P1),p(P2)).
+%% pure(+Dist:tagged_dist(A), -X:A, +S1:pair(store,number), -S2:pair(store,number)) is det.
+%% pure(+Dist:tagged_dist(A), -X:A, +S1:pair(store,rndstate), -S2:pair(store,rndstate)) is det.
+%  Samples or gets probability of value X with tagged distribution Dist. NB: 2nd half of DCG
+%  state type is an UNTAGGED union of numbers (probabilities) and random states.
+pure(Base,X,H-P1,H-P2) :- number(P1), !, call(Base,X,p(P1),p(P2)).
 pure(Base,X,H-S1,H-S2) :- call(Base,X,rs(S1),rs(S2)).
 
+:- meta_predicate pure1(3,?,?,?).
+pure1(Dist, X) --> \> call(Dist,X).
+
+:- meta_predicate marginal_prob(//,-,+,-).
+:- meta_predicate marginal_prob(3,?,-,+,-).
+marginal_prob(G,Prob,S1-P1,S1-P1) :-
+   aggregate(sum(P), S2^call_dcg(G, S1-p(1), S2-p(P)), Prob).
+
+marginal_prob(G,X,Prob,S1-P1,S1-P1) :-
+   aggregate(sum(P), S2^call(G, X, S1-p(1), S2-p(P)), Prob).
