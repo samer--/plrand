@@ -1,4 +1,4 @@
-:- module(crp_pl,
+:- module(crp_tagged,
 		[	empty_classes/1
 		,	dec_class//3
 		,	inc_class//1

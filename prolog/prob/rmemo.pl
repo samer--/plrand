@@ -23,7 +23,7 @@
 :- use_module(library(callutils),  [(*)//4]).
 :- use_module(library(data/store), [store_add//2, store_get//2, store_apply//2, store_set//2]).
 :- use_module(library(prob/crp),   [empty_classes/1, crp_sample//3, add_class//2, inc_class//1]).
-:- use_module(library(prob/crp_pl), []).
+:- use_module(library(prob/crp_tagged), []).
 
 %% memo(+F:dcg(A,B,strand), -G:dcg(A,B,strand))// is det.
 %
@@ -84,7 +84,7 @@ crp(Ref,GEM,H,X) -->
 
 crp2(Ref,GEM,H,X) -->
    \< store_get(Ref,Classes),
-   \> crp_pl:crp_sample(GEM,Classes,Action),
+   \> crp_tagged:crp_sample(GEM,Classes,Action),
    crp_action(Action,Ref,H,X).
 
 crp_action(new,Ref,H,X) -->
