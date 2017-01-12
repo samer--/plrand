@@ -1,6 +1,7 @@
 :- module(rmemo,
           [ gdpmem//3
           , gdp//3
+          , gdp2//3
           , memo//2
           , lazy//2
           , memo_lookup//3
@@ -22,6 +23,7 @@
 :- use_module(library(callutils),  [(*)//4]).
 :- use_module(library(data/store), [store_add//2, store_get//2, store_apply//2, store_set//2]).
 :- use_module(library(prob/crp),   [empty_classes/1, crp_sample//3, add_class//2, inc_class//1]).
+:- use_module(library(prob/crp_pl), []).
 
 %% memo(+F:dcg(A,B,strand), -G:dcg(A,B,strand))// is det.
 %
@@ -70,9 +72,19 @@ gdp(GEM,H,rmemo:crp(Ref,GEM,H)) -->
    {empty_classes(Classes)},
    \< store_add(Classes,Ref).
 
+:- meta_predicate gdp2(+,3,-,+,-).
+gdp2(GEM,H,rmemo:crp2(Ref,GEM,H)) -->
+   {empty_classes(Classes)},
+   \< store_add(Classes,Ref).
+
 crp(Ref,GEM,H,X) -->
    \< store_get(Ref,Classes),
    \> crp_sample(GEM,Classes,Action),
+   crp_action(Action,Ref,H,X).
+
+crp2(Ref,GEM,H,X) -->
+   \< store_get(Ref,Classes),
+   \> crp_pl:crp_sample(GEM,Classes,Action),
    crp_action(Action,Ref,H,X).
 
 crp_action(new,Ref,H,X) -->
@@ -101,3 +113,4 @@ new_gdp(GEM,F,X,GX) --> gdp(GEM,call(F,X),GX).
 gdpmem_info(rmemo:(_*G), X, GEM, Classes) -->
    memo_lookup(G, X, CRP),
    gdp_info(CRP, GEM, Classes).
+

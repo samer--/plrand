@@ -1,4 +1,4 @@
-:- module(crp,
+:- module(crp_pl,
 		[	empty_classes/1
 		,	dec_class//3
 		,	inc_class//1
@@ -51,6 +51,7 @@
 :- use_module(library(apply_macros)).
 :- use_module(library(plrand), [crp_prob/5]).
 :- use_module(library(math),   [sub/3, equal/3, stoch/3, mul/3]).
+:- use_module(library(prob/tagged), [discrete//2]).
 
 
 %% crp_prob( +GEM:gem_param, +Classes:classes(A), +X:A, +PBase:prob, -Prob:prob) is det.
@@ -76,7 +77,8 @@
 %  of the action choosen.
 crp_sample( Alpha, classes(_,Counts,Vals), Action, RS1, RS2) :-
 	counts_dist(Alpha, Counts, Counts1),
-	sample_discrete(Counts1,Z,RS1,RS2),
+   stoch(Counts1, Probs, _),
+	discrete(Probs,Z,RS1,RS2),
 	( Z>1 -> succ(C,Z), nth1(C,Vals,X), Action=old(X,C)
 	; Action=new).
 
@@ -92,14 +94,22 @@ crp_sample( Alpha, classes(_,Counts,Vals), Action, RS1, RS2) :-
 %  probability of the observation, equivalent to calling crp_prob with X BEFORE
 %  calling crp_sample_obs//5.
 %  Operates in random state DCG.
-crp_sample_obs(GEM, Classes, X, PBase, Action) --> 
-   crp_sample_obs(GEM, Classes, X, PBase, Action, _).
-
-crp_sample_obs( Alpha, classes(_,Counts,Vals), X, ProbX, A, RS1, RS2) :-
-	counts_dist( Alpha, Counts, [CNew|Counts1]),	
-	PNew is CNew*ProbX,
+crp_sample_obs(GEM, classes(_,Counts,Vals), X, PBase, Action, RS1, RS2) :- 
+	counts_dist( GEM, Counts, [CNew|Counts1]),	
+	PNew is CNew*PBase,
 	maplist( posterior_count(X),Vals,Counts1,Counts2),
-	sample_discrete( [PNew|Counts2], Z, RS1, RS2),
+   stoch([PNew|Counts2], Probs, _),
+	discrete(Probs, Z, RS1, RS2),
+	(Z=1 -> Action=new; succ(C,Z), Action=old(C)).
+
+crp_sample_obs( GEM, classes(_,Counts,Vals), X, PBase, A, ProbX, RS1, RS2) :-
+	counts_dist( GEM, Counts, [CNew|Counts1]),	
+	PNew is CNew*PBase,
+	maplist( posterior_count(X),Vals,Counts1,Counts2),
+   sumlist([CNew|Counts1], Total),
+   stoch([PNew|Counts2], Probs, TotalX),
+   ProbX is TotalX / Total,
+	discrete(Probs, Z, RS1, RS2),
 	(Z=1 -> A=new; succ(C,Z), A=old(C)).
 
 
@@ -110,7 +120,8 @@ crp_sample_obs( Alpha, classes(_,Counts,Vals), X, ProbX, A, RS1, RS2) :-
 %  Operates in random state DCG.
 crp_sample_rm( classes(_,Counts,Vals), X, Class, RS1, RS2) :-
 	maplist(posterior_count(X),Vals,Counts,Counts1),
-	sample_discrete( Counts1, Class, RS1, RS2).
+   stoch(Counts1, Probs, _),
+	discrete(Probs, Class, RS1, RS2).
 
 
 
@@ -163,8 +174,6 @@ remove_nth(N,[Y|T1],[Y|T2]) :-
 	->	remove_nth(M,T1,T2), succ(M,N)
 	;	succ(M,N), remove_nth(M,T1,T2)
 	).
-
-sample_discrete(O,P,Y) --> {length(P,N)}, plrand:sample_Discrete(N,P,X), {nth1(X,O,Y)}.
 
 posterior_count(X,Val,Count,PC) :- X=Val -> PC=Count; PC=0.
 
