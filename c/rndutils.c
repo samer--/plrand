@@ -20,6 +20,7 @@
 
 #if HAVE_GSL
 #include <gsl/gsl_sf_zeta.h>
+#include <gsl/gsl_sf_psi.h>
 #include <gsl/gsl_randist.h>
 #else
 double gs_ran_exponential_pdf(double x, double a) { return NAN; }
@@ -31,6 +32,7 @@ double gs_ran_poisson_pdf(unsigned int x, double a) { return NAN; }
 double gs_ran_binomial_pdf(unsigned int x, double a, unsigned int b) { return NAN; }
 double gsl_sf_zeta(const double s) { return NAN; }
 double gsl_sf_hzeta(const double s, const double k) { return NAN; }
+double gsl_sf_psi(double x) { return NAN; }
 #endif
 
 double pdf_Normal(double x)                        { return gsl_ran_gaussian_pdf(x,1); }
@@ -50,6 +52,17 @@ double pdf_Uniform(double x)                       { return 1.0; }
 
 
 // -----------------------------------------------------
+
+/* Computes psi (digamma) vector function */
+int vector_psi(long n, double *a, double *x)
+{
+	long i;
+	double tot=0, psi_tot, z;
+	for (i=0; i<n; i++) { tot += a[i]; }
+	psi_tot = gsl_sf_psi(tot);
+	for (i=0; i<n; i++) { x[i] = gsl_sf_psi(a[i]) - psi_tot; }
+	return 1;
+}
 
 // Returns a sample from Normal(0,1)
 double Normal(RndState *S)

@@ -71,6 +71,8 @@ foreign_t prob_Binomial( term_t q, term_t n, term_t x, term_t p);
 foreign_t prob_Dirichlet( term_t n, term_t a, term_t x, term_t p);
 foreign_t prob_Discrete( term_t n, term_t q, term_t x, term_t p);
 
+foreign_t mean_log_Dirichlet( term_t n, term_t a, term_t x);
+
 foreign_t sample_Single_( term_t x); 
 foreign_t sample_Double_( term_t x); 
 
@@ -147,6 +149,7 @@ install_t install() {
 	PL_register_foreign("prob_Dirichlet", 4, (void *)prob_Dirichlet, 0);
 	PL_register_foreign("prob_Binomial",  4, (void *)prob_Binomial, 0);
 	PL_register_foreign("prob_Discrete",  4, (void *)prob_Discrete, 0);
+	PL_register_foreign("mean_log_Dirichlet", 3, (void *)mean_log_Dirichlet, 0);
 
 	PL_register_foreign("crp_prob", 5, (void *)crp_prob, 0);
 	PL_register_foreign("crp_sample", 5, (void *)crp_sample, 0);
@@ -619,8 +622,17 @@ foreign_t prob_Discrete(term_t n, term_t q, term_t x, term_t p) {
 	return r;
 }
 
-
-
+foreign_t mean_log_Dirichlet(term_t n, term_t a, term_t x) { 
+	long N;
+	double *A=NULL, *X=NULL; 
+	int r = get_long(n,&N) 
+	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A) 
+	     && alloc_array(N,sizeof(double),(void **)&X) && vector_psi(N,A,X)
+		  && unify_list_doubles(x,X,N);
+	if (A) free(A);
+	if (X) free(X);
+	return r;
+}
 
 // ----------------------------------------------------------------------------
 // Chinese Restaurant Processes

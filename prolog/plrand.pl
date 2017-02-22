@@ -18,6 +18,8 @@
 
 	,	sample_Single_/1  % -float
 	,	sample_Double_/1  % -float
+
+   ,  mean_log_dirichlet/2 % +list(nonneg), -list(number)
 	]).
 
 /** <module> Skippable, splittable psuedorandom generator
@@ -219,3 +221,9 @@ stream_split(stream(S0,J0),stream(S0,J1),stream(S1,J1)) :- !,
 % from the generator.
 
 
+%% mean_log_dirichlet(+Alphas:list(nonneg), -X:list(number)) is det.
+%  Compute the expectation of the component-wise log of a Dirichilet
+%  distributed vector represented as a list.
+mean_log_dirichlet(A,X) :-
+   length(A,N),
+   mean_log_Dirichlet(N,A,X).
