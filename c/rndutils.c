@@ -21,12 +21,14 @@
 #if HAVE_GSL
 #include <gsl/gsl_sf_zeta.h>
 #include <gsl/gsl_sf_psi.h>
+#include <gsl/gsl_sf_gamma.h>
 #include <gsl/gsl_randist.h>
 #else
 double gs_ran_exponential_pdf(double x, double a) { return NAN; }
 double gs_ran_gaussian_pdf(double x, double a) { return NAN; }
 double gs_ran_beta_pdf(double x, double a, double b) { return NAN; }
 double gs_ran_dirichlet_pdf(size_t n, double *a, double *x) { return NAN; }
+double gs_ran_dirichlet_lnpdf(size_t n, double *a, double *x) { return NAN; }
 double gs_ran_gamma_pdf(double x, double a, double b) { return NAN; }
 double gs_ran_poisson_pdf(unsigned int x, double a) { return NAN; }
 double gs_ran_binomial_pdf(unsigned int x, double a, unsigned int b) { return NAN; }
@@ -46,6 +48,8 @@ double pdf_Dirichlet(long n, double *a, double *x) { return gsl_ran_dirichlet_pd
 double pdf_Discrete(long n, double *p, double tot, long x) { return p[x]/tot; }
 double pdf_Uniform(double x)                       { return 1.0; }
 
+double logpdf_Dirichlet(long n, double *a, double *x) { return gsl_ran_dirichlet_lnpdf(n, a, x); }
+
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
 #endif
@@ -57,11 +61,20 @@ double pdf_Uniform(double x)                       { return 1.0; }
 int vector_psi(long n, double *a, double *x)
 {
 	long i;
-	double tot=0, psi_tot, z;
+	double tot=0, psi_tot;
 	for (i=0; i<n; i++) { tot += a[i]; }
 	psi_tot = gsl_sf_psi(tot);
 	for (i=0; i<n; i++) { x[i] = gsl_sf_psi(a[i]) - psi_tot; }
 	return 1;
+}
+
+/* Computes log of vector Beta function */
+double vector_betaln(long n, double *a)
+{
+	long i;
+	double sum_a=0, sum_ga=0;
+	for (i=0; i<n; i++) { sum_a += a[i]; sum_ga += gsl_sf_lngamma(a[i]); }
+	return sum_ga - gsl_sf_lngamma(sum_a);
 }
 
 // Returns a sample from Normal(0,1)

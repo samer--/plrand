@@ -71,7 +71,9 @@ foreign_t prob_Binomial( term_t q, term_t n, term_t x, term_t p);
 foreign_t prob_Dirichlet( term_t n, term_t a, term_t x, term_t p);
 foreign_t prob_Discrete( term_t n, term_t q, term_t x, term_t p);
 
+foreign_t log_prob_Dirichlet( term_t n, term_t a, term_t x, term_t p);
 foreign_t mean_log_Dirichlet( term_t n, term_t a, term_t x);
+foreign_t log_partition_Dirichlet( term_t n, term_t a, term_t z);
 
 foreign_t sample_Single_( term_t x); 
 foreign_t sample_Double_( term_t x); 
@@ -149,7 +151,9 @@ install_t install() {
 	PL_register_foreign("prob_Dirichlet", 4, (void *)prob_Dirichlet, 0);
 	PL_register_foreign("prob_Binomial",  4, (void *)prob_Binomial, 0);
 	PL_register_foreign("prob_Discrete",  4, (void *)prob_Discrete, 0);
+	PL_register_foreign("log_prob_Dirichlet", 4, (void *)log_prob_Dirichlet, 0);
 	PL_register_foreign("mean_log_Dirichlet", 3, (void *)mean_log_Dirichlet, 0);
+	PL_register_foreign("log_partition_Dirichlet", 3, (void *)log_partition_Dirichlet, 0);
 
 	PL_register_foreign("crp_prob", 5, (void *)crp_prob, 0);
 	PL_register_foreign("crp_sample", 5, (void *)crp_sample, 0);
@@ -600,17 +604,20 @@ foreign_t prob_Binomial(term_t q, term_t n, term_t x, term_t p) {
 		 && PL_unify_float(p, pdf_Binomial(Q,N,X));
 }
 
-foreign_t prob_Dirichlet(term_t n, term_t a, term_t x, term_t p) { 
+static int gen_prob_Dirichlet(double (*prob_fn)(long, double*, double*), term_t n, term_t a, term_t x, term_t p) { 
 	long N;
 	double *A=NULL, *X=NULL; 
 	int r = get_long(n,&N) 
 	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A) 
 	     && alloc_array(N,sizeof(double),(void **)&X) && get_list_doubles(x,X)
-		  && PL_unify_float(p, pdf_Dirichlet(N,A,X)); 
+		  && PL_unify_float(p, prob_fn(N,A,X)); 
 	if (A) free(A);
 	if (X) free(X);
 	return r;
 }
+
+foreign_t prob_Dirichlet(term_t n, term_t a, term_t x, term_t p) { return gen_prob_Dirichlet(pdf_Dirichlet,n,a,x,p); }
+foreign_t log_prob_Dirichlet(term_t n, term_t a, term_t x, term_t p) { return gen_prob_Dirichlet(logpdf_Dirichlet,n,a,x,p); }
 
 foreign_t prob_Discrete(term_t n, term_t q, term_t x, term_t p) { 
 	long N, X;
@@ -631,6 +638,16 @@ foreign_t mean_log_Dirichlet(term_t n, term_t a, term_t x) {
 		  && unify_list_doubles(x,X,N);
 	if (A) free(A);
 	if (X) free(X);
+	return r;
+}
+
+foreign_t log_partition_Dirichlet(term_t n, term_t a, term_t z) { 
+	long N;
+	double *A=NULL; 
+	int r = get_long(n,&N) 
+	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A) 
+	     && PL_unify_float(z, vector_betaln(N,A));
+	if (A) free(A);
 	return r;
 }
 

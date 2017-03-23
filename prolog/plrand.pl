@@ -20,6 +20,7 @@
 	,	sample_Double_/1  % -float
 
    ,  mean_log_dirichlet/2 % +list(nonneg), -list(number)
+   ,  log_partition_dirichlet/2 % +list(nonneg), -number
 	]).
 
 /** <module> Skippable, splittable psuedorandom generator
@@ -72,6 +73,7 @@
    prob_Discrete/4
    prob_Dirichlet/4
    prob_Binomial/4
+   logprob_Dirichlet/4
    ==
 
    @copyright Samer Abdallah (2009--2016)
@@ -227,3 +229,10 @@ stream_split(stream(S0,J0),stream(S0,J1),stream(S1,J1)) :- !,
 mean_log_dirichlet(A,X) :-
    length(A,N),
    mean_log_Dirichlet(N,A,X).
+
+%% log_partition_dirichlet(+Alphas:list(nonneg), -X:number) is det.
+%  Compute the log of the normalisation constant of the Dirichlet PDF with
+%  parameters Alphas, sum(map(gammaln,Alphas)) - gammaln(sum(Alphas)).
+log_partition_dirichlet(A,Z) :-
+   length(A,N),
+   log_partition_Dirichlet(N,A,Z).
