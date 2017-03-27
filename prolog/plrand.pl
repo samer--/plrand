@@ -21,6 +21,7 @@
 
    ,  mean_log_dirichlet/2 % +list(nonneg), -list(number)
    ,  log_partition_dirichlet/2 % +list(nonneg), -number
+   ,  kldiv_dirichlet/3         % +list(nonneg), +list(nonneg), -number
 	]).
 
 /** <module> Skippable, splittable psuedorandom generator
@@ -236,3 +237,17 @@ mean_log_dirichlet(A,X) :-
 log_partition_dirichlet(A,Z) :-
    length(A,N),
    log_partition_Dirichlet(N,A,Z).
+
+%% kldiv_dirichlet(+A:list(nonneg), +B:list(nonneg), -D:number) is det.
+kldiv_dirichlet(A,B,D) :-
+   length(A,N), length(B,N),
+   kldiv_Dirichlet(N,A,B,D).
+
+% kldiv_dirichlet(A,B,D) :-
+%    log_partition_dirichlet(A,ZA),
+%    log_partition_dirichlet(B,ZB),
+%    mean_log_dirichlet(A,PsiA),
+%    maplist(sub,B,A,DA),
+%    map_sum(mul,DA,PsiA,DD),
+%    D is ZB - ZA + DD.
+

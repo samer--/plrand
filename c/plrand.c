@@ -74,6 +74,7 @@ foreign_t prob_Discrete( term_t n, term_t q, term_t x, term_t p);
 foreign_t log_prob_Dirichlet( term_t n, term_t a, term_t x, term_t p);
 foreign_t mean_log_Dirichlet( term_t n, term_t a, term_t x);
 foreign_t log_partition_Dirichlet( term_t n, term_t a, term_t z);
+foreign_t kldiv_Dirichlet( term_t n, term_t a, term_t b, term_t d);
 
 foreign_t sample_Single_( term_t x); 
 foreign_t sample_Double_( term_t x); 
@@ -154,6 +155,7 @@ install_t install() {
 	PL_register_foreign("log_prob_Dirichlet", 4, (void *)log_prob_Dirichlet, 0);
 	PL_register_foreign("mean_log_Dirichlet", 3, (void *)mean_log_Dirichlet, 0);
 	PL_register_foreign("log_partition_Dirichlet", 3, (void *)log_partition_Dirichlet, 0);
+	PL_register_foreign("kldiv_Dirichlet", 4, (void *)kldiv_Dirichlet, 0);
 
 	PL_register_foreign("crp_prob", 5, (void *)crp_prob, 0);
 	PL_register_foreign("crp_sample", 5, (void *)crp_sample, 0);
@@ -648,6 +650,29 @@ foreign_t log_partition_Dirichlet(term_t n, term_t a, term_t z) {
 	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A) 
 	     && PL_unify_float(z, vector_betaln(N,A));
 	if (A) free(A);
+	return r;
+}
+
+static double kldiv_dirichlet(int N, double *A, double *B) {
+	double D = vector_betaln(N,B) - vector_betaln(N,A);
+	double *PsiA;
+
+	alloc_array(N,sizeof(double),(void **)&PsiA);
+	vector_psi(N,A,PsiA);
+	for (int i=0; i<N; i++) { D += (A[i]-B[i])*PsiA[i]; }
+	free(PsiA);
+	return D;
+}
+
+foreign_t kldiv_Dirichlet(term_t n, term_t a, term_t b, term_t d) { 
+	long N;
+	double *A=NULL, *B=NULL; 
+	int r = get_long(n,&N) 
+	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A) 
+	     && alloc_array(N,sizeof(double),(void **)&B) && get_list_doubles(b,B) 
+	     && PL_unify_float(d, kldiv_dirichlet(N,A,B));
+	if (A) free(A);
+	if (B) free(B);
 	return r;
 }
 
