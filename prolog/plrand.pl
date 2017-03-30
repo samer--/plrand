@@ -19,6 +19,7 @@
 	,	sample_Single_/1  % -float
 	,	sample_Double_/1  % -float
 
+   ,  log_prob_dirichlet/3 % +list(nonneg), +list(nonneg), -number
    ,  mean_log_dirichlet/2 % +list(nonneg), -list(number)
    ,  log_partition_dirichlet/2 % +list(nonneg), -number
    ,  kldiv_dirichlet/3         % +list(nonneg), +list(nonneg), -number
@@ -223,6 +224,9 @@ stream_split(stream(S0,J0),stream(S0,J1),stream(S1,J1)) :- !,
 % internal (global) random generator state. It consumes two 32 bit values
 % from the generator.
 
+log_prob_dirichlet(A,X,P) :-
+   length(A,N),
+   log_prob_Dirichlet(N,A,X,P).
 
 %% mean_log_dirichlet(+Alphas:list(nonneg), -X:list(number)) is det.
 %  Compute the expectation of the component-wise log of a Dirichilet
