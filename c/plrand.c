@@ -72,6 +72,7 @@ foreign_t prob_Dirichlet( term_t n, term_t a, term_t x, term_t p);
 foreign_t prob_Discrete( term_t n, term_t q, term_t x, term_t p);
 
 foreign_t log_prob_Dirichlet( term_t n, term_t a, term_t x, term_t p);
+foreign_t log_prob_Dirichlet_log( term_t n, term_t a, term_t x, term_t p);
 foreign_t mean_log_Dirichlet( term_t n, term_t a, term_t x);
 foreign_t log_partition_Dirichlet( term_t n, term_t a, term_t z);
 foreign_t kldiv_Dirichlet( term_t n, term_t a, term_t b, term_t d);
@@ -153,6 +154,7 @@ install_t install() {
 	PL_register_foreign("prob_Binomial",  4, (void *)prob_Binomial, 0);
 	PL_register_foreign("prob_Discrete",  4, (void *)prob_Discrete, 0);
 	PL_register_foreign("log_prob_Dirichlet", 4, (void *)log_prob_Dirichlet, 0);
+	PL_register_foreign("log_prob_Dirichlet_log", 4, (void *)log_prob_Dirichlet_log, 0);
 	PL_register_foreign("mean_log_Dirichlet", 3, (void *)mean_log_Dirichlet, 0);
 	PL_register_foreign("log_partition_Dirichlet", 3, (void *)log_partition_Dirichlet, 0);
 	PL_register_foreign("kldiv_Dirichlet", 4, (void *)kldiv_Dirichlet, 0);
@@ -620,6 +622,7 @@ static int gen_prob_Dirichlet(double (*prob_fn)(long, double*, double*), term_t 
 
 foreign_t prob_Dirichlet(term_t n, term_t a, term_t x, term_t p) { return gen_prob_Dirichlet(pdf_Dirichlet,n,a,x,p); }
 foreign_t log_prob_Dirichlet(term_t n, term_t a, term_t x, term_t p) { return gen_prob_Dirichlet(logpdf_Dirichlet,n,a,x,p); }
+foreign_t log_prob_Dirichlet_log(term_t n, term_t a, term_t x, term_t p) { return gen_prob_Dirichlet(logpdf_Dirichlet_log,n,a,x,p); }
 
 foreign_t prob_Discrete(term_t n, term_t q, term_t x, term_t p) { 
 	long N, X;

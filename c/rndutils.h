@@ -41,6 +41,7 @@ double pdf_Discrete(long n, double *p, double tot, long x);
 double pdf_Uniform(double x);
 
 double logpdf_Dirichlet(long n, double *a, double *x);
+double logpdf_Dirichlet_log(long n, double *a, double *lx);
 
 int  vector_psi(long n, double *a, double *x);
 double vector_betaln(long n, double *a);

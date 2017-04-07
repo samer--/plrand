@@ -49,6 +49,11 @@ double pdf_Discrete(long n, double *p, double tot, long x) { return p[x]/tot; }
 double pdf_Uniform(double x)                       { return 1.0; }
 
 double logpdf_Dirichlet(long n, double *a, double *x) { return gsl_ran_dirichlet_lnpdf(n, a, x); }
+double logpdf_Dirichlet_log(long n, double *a, double *lx) {
+	double s=0;
+	for (int i=0; i<n; i++) { s += (a[i]-1)*lx[i]; }
+	return s - vector_betaln(n,a);
+}
 
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
