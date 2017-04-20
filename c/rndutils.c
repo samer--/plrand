@@ -51,7 +51,8 @@ double pdf_Uniform(double x)                       { return 1.0; }
 double logpdf_Dirichlet(long n, double *a, double *x) { return gsl_ran_dirichlet_lnpdf(n, a, x); }
 double logpdf_Dirichlet_log(long n, double *a, double *lx) {
 	double s=0;
-	for (int i=0; i<n; i++) { s += (a[i]-1)*lx[i]; }
+	long i;
+	for (i=0; i<n; i++) { s += (a[i]-1)*lx[i]; }
 	return s - vector_betaln(n,a);
 }
 
