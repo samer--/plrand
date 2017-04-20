@@ -659,10 +659,11 @@ foreign_t log_partition_Dirichlet(term_t n, term_t a, term_t z) {
 static double kldiv_dirichlet(int N, double *A, double *B) {
 	double D = vector_betaln(N,B) - vector_betaln(N,A);
 	double *PsiA;
+	int    i;
 
 	alloc_array(N,sizeof(double),(void **)&PsiA);
 	vector_psi(N,A,PsiA);
-	for (int i=0; i<N; i++) { D += (A[i]-B[i])*PsiA[i]; }
+	for (i=0; i<N; i++) { D += (A[i]-B[i])*PsiA[i]; }
 	free(PsiA);
 	return D;
 }
