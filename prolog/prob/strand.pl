@@ -1,5 +1,6 @@
 :- module(strand, [ strand/0
                   , strand/1
+                  , strand//1
                   , clear//0
                   , hold_store//1
                   , pure//2
@@ -12,9 +13,14 @@
    
    This module provides tools for working in a sort of random generator plus
    store of mutable references monad (using DCG lanugage to manage state threading).
+
+   @tbd I'm not happy with the state of this module (no pun intended... no wait a
+   minute, that's a pretty good pun actually: the state representation _is_ one
+   of the problems). The use of an untagged union is not good, and the stuff trying 
+   to compute marginals doesn't really belong in a low level module like this.
 */
 
-:- meta_predicate strand(//)
+:- meta_predicate strand(//), strand(//,+,-)
                 , hold_store(//,?,?)
                 , pure(3,-,+,-)
                 .
@@ -41,9 +47,12 @@ shell_in(M, S1, S2) :- @(dcgshell(strand, S1, S2), M).
 
 %% strand(+Cmd:dcg(strand)) is det.
 %  Run Cmd in a DCG where the state is of type =|strand = pair(store,plrand:state)|=.
-strand(Cmd) :- 
-   store_new(H0),
-   with_rnd_state(run_left(Cmd,H0,_)).
+strand(Cmd) :- with_rnd_state(strand(Cmd)).
+
+%% strand(+Cmd:dcg(strand),+RS1:(plrand:state),-RS2:(plrand:state)) is det.
+%  Run Cmd in a DCG where the state is of type =|strand = pair(store,plrand:state)|=,
+%  taking and returning initial and final states of plrand generator.
+strand(Cmd) --> {store_new(H0)}, run_left(Cmd,H0,_).
 
 %% clear// is det.
 %  Clear everything out of the store. Runs in strand DCG.
