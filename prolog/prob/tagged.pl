@@ -1,26 +1,26 @@
 :- module(prob_tagged,
-		[	uniform01//1
-		,	uniform//2, uniformT//2, uniformP//2
-		,	normal//1
-		,	gaussian//3
-		,	exponential//1
-		,	poisson//2
-		,	stable//3
-		,	dirichlet//2
-		,	discrete//2
-		,	discrete//3, discreteT//3
-		,	binomial//3
-		,	beta//3
-		,	zeta//2
-		,	gamma//2
-		,	inv_gamma//2
-		,	bernoulli//2
-		,	students_t//2
-		,	mixture//3
-      ,  product_pair//3
-      ,  prob/3, prob/2
-      ,  pdf/3, pdf/2
-		]).
+          [ uniform01//1
+          , uniform//2, uniformT//2, uniformP//2
+          , normal//1
+          , gaussian//3
+          , exponential//1
+          , poisson//2
+          , stable//3
+          , dirichlet//2
+          , discrete//2
+          , discrete//3, discreteT//3
+          , binomial//3
+          , beta//3
+          , zeta//2
+          , gamma//2
+          , inv_gamma//2
+          , bernoulli//2
+          , students_t//2
+          , mixture//3
+          , product_pair//3
+          , prob/3, prob/2
+          , pdf/3, pdf/2
+          ]).
 
 /** <module> Random predicates
 
@@ -33,8 +33,8 @@ using the DCG idiom.
 
 :- module_transparent stream/2.
 
-:- use_module(library(dcg_core)). 
-:- use_module(library(dcg_pair)). 
+:- use_module(library(dcg_core)).
+:- use_module(library(dcg_pair)).
 :- use_module(library(plrand),[]).
 
 term_expansion(wrap_rs(Arity,Name,Pred), Head :- plrand:Body) :-
@@ -77,7 +77,7 @@ wrap_disc(2,poisson,prob_Poisson).
 %  Sample from a discrete distribution over natural numbers.
 discrete(Ps,I,p(P1),p(P2))   :- !, nth1(I,Ps,P), P2 is P1*P.
 discrete(Ps,I,rs(S1),rs(S2)) :- length(Ps,N), plrand:sample_Discrete(N,Ps,I,S1,S2).
- 
+
 
 %% discrete( +O:list(T), +A:list(prob), -X:T)// is det.
 %  Sample from a discrete distribution over list of objects.
@@ -87,12 +87,12 @@ discrete(Xs,Ps,X,p(P1),p(P2))   :-
    P2 is P1*Prob.
 
 discreteT(Xs,Ps,X,rs(S1),rs(S2)) :- !, functor(Ps,_,N), plrand:sample_DiscreteF(N,Ps,I,S1,S2), arg(I,Xs,X).
-discreteT(Xs,Ps,X,p(P1),p(P2))   :- 
-   aggregate(sum(P), I^(arg(I,Xs,X), arg(I,Ps,P)), Prob), 
+discreteT(Xs,Ps,X,p(P1),p(P2))   :-
+   aggregate(sum(P), I^(arg(I,Xs,X), arg(I,Ps,P)), Prob),
    P2 is P1*Prob.
 
 %% uniform01( -X:float)// is det.
-% 
+%
 %  Sample X from uniform distribution on [0,1).
 uniform01(_,p(_),p(0)) :- !.
 uniform01(_,pd(P),pd(P)) :- !.
@@ -126,29 +126,29 @@ dirichlet(A,X,p(P1),p(P2))   :- length(A,N), plrand:prob_Dirichlet(N,A,X,P), P2 
 %  uniform :: list(A) -> expr(A).
 
 uniform(O,X,rs(S1),rs(S2)) :- !,
-	length(O,N), 
-	plrand:sample_Uniform01(U,S1,S2),
-	I is 1+floor(N*U), nth1(I,O,X).
-uniform(O,X,p(P1),p(P2)) :- 
-   length(O,N), 
+   length(O,N),
+   plrand:sample_Uniform01(U,S1,S2),
+   I is 1+floor(N*U), nth1(I,O,X).
+uniform(O,X,p(P1),p(P2)) :-
+   length(O,N),
    aggregate(count,member(X,O),K),
    P2 is P1*K/N.
 
-uniformT(O,X,p(P1),p(P2)) :- !, 
-   functor(O,_,N), 
+uniformT(O,X,p(P1),p(P2)) :- !,
+   functor(O,_,N),
    aggregate(count,I^arg(I,O,X),K),
    P2 is K*P1/N.
 
-uniformT(O,X,rs(S1),rs(S2)) :- 
+uniformT(O,X,rs(S1),rs(S2)) :-
    functor(O,_,N),
-	plrand:sample_Uniform01(U,S1,S2),
-	I is 1+floor(N*U), arg(I,O,X).
+   plrand:sample_Uniform01(U,S1,S2),
+   I is 1+floor(N*U), arg(I,O,X).
 
 %% uniformP(+P:dcg(-A), -A)// is det.
 %  Sample uniformly from all solutions to call(P,X).
 :- meta_predicate uniformP(3,-,+,-).
-uniformP(P,X) --> 
-   {findall(Y,call(P,Y),YY)}, 
+uniformP(P,X) -->
+   {findall(Y,call(P,Y),YY)},
    uniform(YY,X).
 
 %% beta( +A:nonneg, +B:nonneg, -X:prob)// is det.
@@ -157,7 +157,7 @@ wrap_rs(3,beta,sample_Beta).
 wrap_cont(3,beta,prob_Beta).
 
 %% zeta( +A:nonneg, -X:natural)// is det.
-%  Sample from zeta (hyperbolic or power law) distribution over natural numbers. 
+%  Sample from zeta (hyperbolic or power law) distribution over natural numbers.
 %  NB: Must have A > 1.
 wrap_rs(2,zeta,sample_Zeta).
 wrap_disc(2,zeta,prob_Zeta).
@@ -169,7 +169,7 @@ wrap_rs(2,gamma,sample_Gamma).
 wrap_cont(2,gamma,prob_Gamma).
 
 
-% ^ above use plrand samplers and need randstate 
+% ^ above use plrand samplers and need randstate
 % ---------------------- DERIVED DISTRIBUTIONS ---------------------
 % V below do not use state directly.
 
@@ -202,10 +202,10 @@ product_pair(F,G,X-Y) --> call(F,X), call(G,Y).
 %  and then sample from the resulting distribution.
 %
 %  mixture :: \(list(expr(A)), list(prob)) -> expr(A).
-mixture( Sources, Dist, X) --> 
-	discrete(Dist,I),  
-	{nth1(Sources,I,S)},
-	call(S,X).
+mixture( Sources, Dist, X) -->
+   discrete(Dist,I),
+   {nth1(Sources,I,S)},
+   call(S,X).
 
 prob(Expr,Val,Prob) :- call(Expr,Val,p(1),p(Prob)).
 pdf(Expr,Val,Prob) :- call(Expr,Val,pd(1),pd(Prob)).
