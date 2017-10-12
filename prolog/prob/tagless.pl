@@ -36,6 +36,7 @@ using the DCG idiom.
 :- use_module(library(plrand),[]).
 
 term_expansion(stub(Arity,Name,Pred), Head --> plrand:Body) :-
+   length(Args, Arity),
    Head =.. [Name | Args],
    Body =.. [Pred | Args].
 
