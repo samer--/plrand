@@ -4,14 +4,17 @@
 	,	is_rnd_state/1		% +state
 	,	init_rnd_state/1	% -state
 	,	with_rnd_state/1	% +phrase(state)
+   ,  with_brs/2        % +varname, +phrase(state)
+   ,  init_brs/1        % +varname
+   ,  randomise_brs/1   % +varname
 	,	randomise/1			% -state
 	,	init_jump/2       % +integer, -jump
 	,	double_jump/2		% +jump, -jump
 	,	spawn/3           % -state, +state, -state
 	,	jump/3				% +jump, +state, -state
 
-	,	rnd_state_term/2  
-	,	run_rnd_state/3	
+	,	rnd_state_term/2
+	,	run_rnd_state/3
 
 	,	stream_init/3     % +state, +integer, -stream
 	,	stream_split/3    % +stream, -stream, -stream
@@ -31,7 +34,7 @@
    library RngStream, which is a high-quality, long period pseudorandom generator
    that can do the neat trick of quickly skipping ahead an arbitrary number of samples
    in the stream without actually generating all the samples in between. This
-   capability is used to implement a stream of random bits that can be split 
+   capability is used to implement a stream of random bits that can be split
    recursively into 'pseudoindependent' substreams.
 
    ---+++ Types
@@ -47,7 +50,7 @@
       * prob
          A floating point number between 0 and 1.
 
-   ---+++ Available but not exported 
+   ---+++ Available but not exported
 
    ==
    sample_Uniform01(-float)//
@@ -82,7 +85,27 @@
 */
 
 :-	use_foreign_library(foreign(plrand)).
-:- meta_predicate with_rnd_state(:), run_rnd_state(:,+,-).
+:- meta_predicate with_rnd_state(:), run_rnd_state(:,+,-), with_brs(+,//).
+
+%! with_brs(N:atom, G:dcg(rndstate)) is det.
+%  Runs goal G as a DCG goal with RNG state from a thread-local bactrackable
+%  gobal variable name N.
+%  The final state is stored in the global variable, but any
+%  subsequent failure will restore the previous value. If using in a thread
+%  other than main, you must call init_rnd_state/0 to initialise the global
+%  variable. NB, you will probably want to set the Prolog flag =|toplevel_mode|=
+%  to recursive.
+with_brs(N,G) :-
+   b_getval(N, S1), call_dcg(G,S1,S2),
+   b_setval(N, S2).
+
+%! init_brs(+Name) is det.
+%  Initialise thread local backtrackable global variable with default RNG state.
+init_brs(N) :- init_rnd_state(S), b_setval(N, S).
+
+%! randomise_brs(+Name) is det.
+%  Randomise thread local backtrackable global variable using randomise/1.
+randomise_brs(N) :- randomise(S), b_setval(N, S).
 
 %% get_rnd_state(-State:state) is det.
 %
@@ -128,7 +151,7 @@ rnd_state_term(RS,T) :-
 %% run_rnd_state(Cmd:phrase(state), +State1:state, -State2:state) is nondet.
 %% run_rnd_state(Cmd:phrase(state), +State1:state_term, -State2:state_term) is nondet.
 %
-%  Runs DCG phrase Cmd as with call_dcg/3, except that, if State1 is in the term representation 
+%  Runs DCG phrase Cmd as with call_dcg/3, except that, if State1 is in the term representation
 %  (type =|state|=), it is converted to the blob representation (type =|state|=) and the final
 %  state is converted back from term representation to get State2.
 run_rnd_state(P,S1,S2) :- functor(S1,rs,7), !,
@@ -169,7 +192,7 @@ run_rnd_state(P,S1,S2) :- is_rnd_state(S1), !, call_dcg(P,S1,S2).
 % stream of values instead of just one value.
 % Note: New is likely to point to a new point in the original stream
 % far away from Orig and Next, simply because the period of the generator
-% is so large (about 2^191) but there is no guarantee of this. Therefore, it's 
+% is so large (about 2^191) but there is no guarantee of this. Therefore, it's
 % possible (but unlikely) that New might produce a stream that overlaps
 % significantly with samples drawn from Next. If you need to be sure
 % that New is a long way from Orig and Next, then use jump/3 instead.
@@ -213,14 +236,14 @@ stream_split(stream(S0,J0),stream(S0,J1),stream(S1,J1)) :- !,
 
 %% sample_Single_(-Float) is det.
 %
-% Samples a single precision floating point value in [0,1) using the 
+% Samples a single precision floating point value in [0,1) using the
 % internal (global) random generator state. It consumes one 32 bit value
-% from the generator. This is the fasted way to generate a random value 
+% from the generator. This is the fasted way to generate a random value
 % using this library.
 
 %% sample_Double_(-Float) is det.
 %
-% Samples a double precision floating point value in [0,1) using the 
+% Samples a double precision floating point value in [0,1) using the
 % internal (global) random generator state. It consumes two 32 bit values
 % from the generator.
 
