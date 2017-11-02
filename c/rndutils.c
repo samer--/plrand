@@ -23,6 +23,9 @@
 #include <gsl/gsl_sf_psi.h>
 #include <gsl/gsl_sf_gamma.h>
 #include <gsl/gsl_randist.h>
+#include <gsl/gsl_errno.h>
+
+void initialise() { gsl_set_error_handler_off(); }
 #else
 double gs_ran_exponential_pdf(double x, double a) { return NAN; }
 double gs_ran_gaussian_pdf(double x, double a) { return NAN; }
@@ -35,6 +38,8 @@ double gs_ran_binomial_pdf(unsigned int x, double a, unsigned int b) { return NA
 double gsl_sf_zeta(const double s) { return NAN; }
 double gsl_sf_hzeta(const double s, const double k) { return NAN; }
 double gsl_sf_psi(double x) { return NAN; }
+
+void initialise() {}
 #endif
 
 double pdf_Normal(double x)                        { return gsl_ran_gaussian_pdf(x,1); }
