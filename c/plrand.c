@@ -6,10 +6,10 @@
  *
  * To do:
  *    work out lower bound for skew stable distributions
- * 	stream splitting with jumps
- * 	reduce blob copying
- * 	fast discrete distributions
- * 	ziggurat for normals
+ *    stream splitting with jumps
+ *    reduce blob copying
+ *    fast discrete distributions
+ *    ziggurat for normals
  */
 
 #define _USE_MATH_DEFINES 1
@@ -32,11 +32,11 @@ int rj_write(IOSTREAM *,atom_t,int);
 
 install_t install();
 
-foreign_t init_rnd_state( term_t s); 
-foreign_t get_rnd_state( term_t s); 
-foreign_t set_rnd_state( term_t s); 
-foreign_t is_rnd_state( term_t s); 
-foreign_t randomise( term_t s); 
+foreign_t init_rnd_state( term_t s);
+foreign_t get_rnd_state( term_t s);
+foreign_t set_rnd_state( term_t s);
+foreign_t is_rnd_state( term_t s);
+foreign_t randomise( term_t s);
 foreign_t spawn( term_t s0, term_t s1, term_t s2);
 foreign_t jump( term_t j, term_t s1, term_t s2);
 foreign_t init_jump( term_t n, term_t j);
@@ -45,10 +45,10 @@ foreign_t double_jump( term_t j1, term_t j2);
 foreign_t rnd_state_to_term( term_t rs, term_t t);
 foreign_t term_to_rnd_state( term_t t, term_t rs);
 
-foreign_t sample_Raw( term_t x, term_t s0, term_t s1); 
-foreign_t sample_Uniform01( term_t x, term_t s0, term_t s1); 
-foreign_t sample_Normal( term_t x, term_t s0, term_t s1); 
-foreign_t sample_Exponential( term_t x, term_t s0, term_t s1); 
+foreign_t sample_Raw( term_t x, term_t s0, term_t s1);
+foreign_t sample_Uniform01( term_t x, term_t s0, term_t s1);
+foreign_t sample_Normal( term_t x, term_t s0, term_t s1);
+foreign_t sample_Exponential( term_t x, term_t s0, term_t s1);
 foreign_t sample_Gamma( term_t a, term_t x, term_t s0, term_t s1);
 foreign_t sample_Poisson( term_t a, term_t x, term_t s0, term_t s1);
 foreign_t sample_Beta( term_t a, term_t b, term_t x, term_t s0, term_t s1);
@@ -60,7 +60,7 @@ foreign_t sample_DirichletF( term_t n, term_t a, term_t x, term_t s0, term_t s1)
 foreign_t sample_Discrete( term_t n, term_t p, term_t x, term_t s0, term_t s1);
 foreign_t sample_DiscreteF( term_t n, term_t p, term_t x, term_t s0, term_t s1);
 
-foreign_t prob_Uniform01( term_t x, term_t p); 
+foreign_t prob_Uniform01( term_t x, term_t p);
 foreign_t prob_Normal( term_t x, term_t p);
 foreign_t prob_Exponential( term_t x, term_t p);
 foreign_t prob_Gamma( term_t a, term_t x, term_t p);
@@ -77,8 +77,8 @@ foreign_t mean_log_Dirichlet( term_t n, term_t a, term_t x);
 foreign_t log_partition_Dirichlet( term_t n, term_t a, term_t z);
 foreign_t kldiv_Dirichlet( term_t n, term_t a, term_t b, term_t d);
 
-foreign_t sample_Single_( term_t x); 
-foreign_t sample_Double_( term_t x); 
+foreign_t sample_Single_( term_t x);
+foreign_t sample_Double_( term_t x);
 
 foreign_t crp_prob( term_t alpha, term_t classes, term_t x, term_t pprob, term_t p);
 foreign_t crp_sample( term_t alpha, term_t classes, term_t action, term_t rnd1, term_t rnd2);
@@ -92,7 +92,7 @@ static functor_t functor_old1, functor_old2;
 static functor_t functor_dp1, functor_py2;
 
 /*
-static void test() 
+static void test()
 {
 	RndState S;
 
@@ -110,7 +110,7 @@ static void test()
 }
 */
 
-install_t install() { 
+install_t install() {
 	PL_register_foreign("init_rnd_state", 1, (void *)init_rnd_state, 0);
 	PL_register_foreign("get_rnd_state", 1, (void *)get_rnd_state, 0);
 	PL_register_foreign("set_rnd_state", 1, (void *)set_rnd_state, 0);
@@ -177,7 +177,7 @@ install_t install() {
 	rj_blob.magic = PL_BLOB_MAGIC;
 	rj_blob.flags = PL_BLOB_UNIQUE;
 	rj_blob.name = "rndjump";
-	rj_blob.acquire = 0; 
+	rj_blob.acquire = 0;
 	rj_blob.release = 0;
 	rj_blob.compare = 0;
 	rj_blob.write   = rj_write;
@@ -201,13 +201,13 @@ static int check(int cond, const char *expected, term_t got) {
 
 // unify Prolog BLOB with RndState structure
 static int unify_state(term_t state,RndState *S) {
-	return PL_unify_blob(state, S, sizeof(RndState), &rs_blob); 
+	return PL_unify_blob(state, S, sizeof(RndState), &rs_blob);
 }
 
 static int unify_state_term(term_t t, RndState *S) {
 	double	*Cg=&S->g.Cg[0];
 	int64_t	*prev=(int64_t *)&S->prev_normal;
-	return PL_unify_term(t, PL_FUNCTOR, functor_rs7, 
+	return PL_unify_term(t, PL_FUNCTOR, functor_rs7,
 			PL_INT64, (int64_t)Cg[0],
 			PL_INT64, (int64_t)Cg[1],
 			PL_INT64, (int64_t)Cg[2],
@@ -234,11 +234,11 @@ static int get_state_term(term_t t, RndState *S) {
 
 // extract RndState structure from Prolog BLOB
 static int get_state(term_t state, RndState *S0)
-{ 
+{
 	PL_blob_t *type;
 	size_t    len;
 	RndState *S;
-  
+
 	PL_get_blob(state, (void **)&S, &len, &type);
 	if (type != &rs_blob) {
 		return type_error(state, "rndstate");
@@ -246,10 +246,10 @@ static int get_state(term_t state, RndState *S0)
 		*S0=*S;
 		return TRUE;
 	}
-} 
+}
 
-int rs_write(IOSTREAM *s, atom_t a, int flags) 
-{ 
+int rs_write(IOSTREAM *s, atom_t a, int flags)
+{
 	PL_blob_t *type;
 	size_t    len;
 	RndState *p=(RndState *)PL_blob_data(a,&len,&type);
@@ -259,21 +259,21 @@ int rs_write(IOSTREAM *s, atom_t a, int flags)
 		for (i=0; i<6; i++) Sfprintf(s," %.0lf",p->g.Cg[i]);
 		Sfprintf(s,">");
 	}
-	return TRUE; 
+	return TRUE;
 }
 
 // unify Prolog BLOB with RndJump structure
 static int unify_jump(term_t jump,RndJump *J) {
-	return PL_unify_blob(jump, J, sizeof(RndJump), &rj_blob); 
+	return PL_unify_blob(jump, J, sizeof(RndJump), &rj_blob);
 }
 
 // extract RndState structure from Prolog BLOB
 static int get_jump(term_t jump, RndJump *J0)
-{ 
+{
 	PL_blob_t *type;
 	size_t    len;
 	RndJump *J;
-  
+
 	PL_get_blob(jump, (void **)&J, &len, &type);
 	if (type != &rj_blob) {
 		return type_error(jump, "rndjump");
@@ -281,26 +281,26 @@ static int get_jump(term_t jump, RndJump *J0)
 		*J0=*J;
 		return TRUE;
 	}
-} 
+}
 
-int rj_write(IOSTREAM *s, atom_t a, int flags) 
-{ 
+int rj_write(IOSTREAM *s, atom_t a, int flags)
+{
 	PL_blob_t *type;
 	size_t    len;
 	RndJump *p=(RndJump *)PL_blob_data(a,&len,&type);
 	if (p) {
 		Sfprintf(s,"<rj %d>",p->e);
 	}
-	return TRUE; 
+	return TRUE;
 }
 
 // -----------------------------------------------------
 
 // unify jump with a new blob representing a sequence jump
-foreign_t init_jump(term_t pow, term_t jump) { 
+foreign_t init_jump(term_t pow, term_t jump) {
 	RndJump J;
 	long e;
-	
+
 	if (get_long(pow,&e)) {
 		J.e=e;
 		RngStream_InitJump(&J.j,e);
@@ -308,9 +308,9 @@ foreign_t init_jump(term_t pow, term_t jump) {
 	} else return FALSE;
 }
 
-foreign_t double_jump(term_t j0, term_t j1) { 
+foreign_t double_jump(term_t j0, term_t j1) {
 	RndJump J;
-	
+
 	if (get_jump(j0,&J)) {
 		J.e++;
 		RngStream_DoubleJump(&J.j,&J.j);
@@ -318,8 +318,8 @@ foreign_t double_jump(term_t j0, term_t j1) {
 	} else return FALSE;
 }
 
-// unify Prolog term with the default random state 
-foreign_t init_rnd_state(term_t state) { 
+// unify Prolog term with the default random state
+foreign_t init_rnd_state(term_t state) {
 	RndState S0;
 	InitRndState(&S0);
 	return unify_state(state, &S0);
@@ -331,7 +331,7 @@ foreign_t get_rnd_state(term_t state) { return unify_state(state, &CurrentState)
 // set current random state structure to values in Prolog term
 foreign_t set_rnd_state(term_t state) { return get_state(state, &CurrentState); }
 
-foreign_t rnd_state_to_term( term_t state, term_t t) 
+foreign_t rnd_state_to_term( term_t state, term_t t)
 {
 	RndState S;
 	return get_state(state, &S) && unify_state_term(t,&S);
@@ -344,7 +344,7 @@ foreign_t term_to_rnd_state( term_t t, term_t state)
 }
 
 // get truly random state from /dev/random
-foreign_t randomise(term_t state) { 
+foreign_t randomise(term_t state) {
 	RndState S;
 	FILE		*p;
 
@@ -352,7 +352,7 @@ foreign_t randomise(term_t state) {
 	if (p!=NULL) {
 		int rc=randomise_from(p,&S);
 		fclose(p);
-		return rc && unify_state(state, &S); 
+		return rc && unify_state(state, &S);
 	}
 	{
 		term_t ex = PL_new_term_ref();
@@ -364,28 +364,28 @@ foreign_t randomise(term_t state) {
 	  return rc && PL_raise_exception(ex);
 	}
 }
-	
-foreign_t spawn(term_t new, term_t orig, term_t next) { 
+
+foreign_t spawn(term_t new, term_t orig, term_t next) {
 	RndState S0, S1;
 
 	return get_state(orig, &S0)
 			&& spawn_gen(&S0, &S1)
-			&& unify_state(next, &S0) 
-			&& unify_state(new, &S1); 
+			&& unify_state(next, &S0)
+			&& unify_state(new, &S1);
 }
 
-foreign_t jump(term_t j, term_t s0, term_t s1) { 
+foreign_t jump(term_t j, term_t s0, term_t s1) {
 	RndState S;
 	RndJump  J;
 
 	if (get_jump(j, &J) && get_state(s0, &S)) {
 		RngStream_Advance(&J.j, &S.g, &S.g);
-		return unify_state(s1, &S); 
+		return unify_state(s1, &S);
 	} else return FALSE;
 }
 
 // set current random state structure to values in Prolog term
-foreign_t is_rnd_state(term_t state) { 
+foreign_t is_rnd_state(term_t state) {
 	PL_blob_t *type;
 	return PL_is_blob(state,&type) && type==&rs_blob;
 }
@@ -394,12 +394,12 @@ foreign_t is_rnd_state(term_t state) {
 static int unify_float_state(term_t x, double z, term_t s, RndState *S) {
 	return  PL_unify_float(x, z) && unify_state(s, S);
 }
-	
+
 // unify one term with numeric value and other with random state structure
 //static int unify_integer(term_t x, long z, term_t s, RndState *S) {
 //	return  PL_unify_integer(x, z) && unify_state(s,S);
 //}
-	
+
 foreign_t sample_Single_(term_t x) {
 	return PL_unify_float(x, RngStream_Float(&CurrentState.g,&CurrentState.g));
 }
@@ -464,8 +464,8 @@ foreign_t sample_Dirichlet(term_t n, term_t a, term_t x, term_t s0, term_t s1)
 		double   *A=NULL, *X=NULL;
 		RndState S;
 
-		int rc = alloc_array(N,sizeof(double),(void **)&A) 
-				&& alloc_array(N,sizeof(double),(void **)&X) 
+		int rc = alloc_array(N,sizeof(double),(void **)&A)
+				&& alloc_array(N,sizeof(double),(void **)&X)
 				&& get_list_doubles(a,A)
 				&& get_state(s0,&S)
 				&& Dirichlet(&S,N,A,X)
@@ -486,8 +486,8 @@ foreign_t sample_DirichletF(term_t n, term_t a, term_t x, term_t s0, term_t s1)
 		double   *A=NULL, *X=NULL;
 		RndState S;
 
-		int rc = alloc_array(N,sizeof(double),(void **)&A) 
-				&& alloc_array(N,sizeof(double),(void **)&X) 
+		int rc = alloc_array(N,sizeof(double),(void **)&A)
+				&& alloc_array(N,sizeof(double),(void **)&X)
 				&& get_args_doubles(a,A,N)
 				&& get_state(s0,&S)
 				&& Dirichlet(&S,N,A,X)
@@ -508,7 +508,7 @@ foreign_t sample_Beta(term_t a, term_t b, term_t x, term_t s0, term_t s1) {
 
 	return get_state(s0,&S) &&
 		    get_double(a,&A) &&
-	       get_double(b,&B) && 
+	       get_double(b,&B) &&
 			 unify_float_state(x, Beta(&S,A,B),s1,&S);
 }
 
@@ -530,7 +530,7 @@ foreign_t sample_Binomial(term_t p, term_t n, term_t x, term_t s0, term_t s1) {
 
 	return get_state(s0,&S) &&
 		    get_double(p,&P) &&
-	       get_long(n,&N) && 
+	       get_long(n,&N) &&
 	       PL_unify_integer(x, Binomial(&S,P,(int)N)) &&
 			 unify_state(s1, &S);
 }
@@ -542,7 +542,7 @@ foreign_t sample_Stable(term_t a, term_t b, term_t x, term_t s0, term_t s1) {
 
 	return get_state(s0,&S) &&
 		    get_double(a,&A) &&
-	       get_double(b,&B) && 
+	       get_double(b,&B) &&
 			 unify_float_state(x, Stable(&S,1,A,B),s1,&S);
 }
 
@@ -554,7 +554,7 @@ foreign_t sample_Discrete(term_t n, term_t p, term_t x, term_t s0, term_t s1)
 		double   *P;
 		RndState S;
 
-		int rc = alloc_array(N,sizeof(double),(void **)&P) 
+		int rc = alloc_array(N,sizeof(double),(void **)&P)
 				&& get_list_doubles(p,P)
 				&& get_state(s0,&S)
 				&& PL_unify_integer(x, 1+Discrete(&S,N,P,sum_array(P,N)));
@@ -573,7 +573,7 @@ foreign_t sample_DiscreteF(term_t n, term_t p, term_t x, term_t s0, term_t s1)
 		double   *P;
 		RndState S;
 
-		int rc = alloc_array(N,sizeof(double),(void **)&P) 
+		int rc = alloc_array(N,sizeof(double),(void **)&P)
 				&& get_args_doubles(p,P,N)
 				&& get_state(s0,&S)
 				&& PL_unify_integer(x, 1+Discrete(&S,N,P,sum_array(P,N)));
@@ -589,32 +589,32 @@ foreign_t prob_Normal(term_t x, term_t p)      { double X; return get_double(x,&
 foreign_t prob_Exponential(term_t x, term_t p) { double X; return get_double(x,&X) && PL_unify_float(p, pdf_Exponential(X)); }
 foreign_t prob_Gamma(term_t a, term_t x, term_t p)   { double A, X; return get_double(a,&A) && get_double(x,&X) && PL_unify_float(p, pdf_Gamma(A,X)); }
 foreign_t prob_Poisson(term_t a, term_t x, term_t p) { double A, X; return get_double(a,&A) && get_double(x,&X) && PL_unify_float(p, pdf_Poisson(A,X)); }
-foreign_t prob_Zeta(term_t a, term_t x, term_t p)    { 
-	double A, X; 
-	return get_double(a,&A) && 
+foreign_t prob_Zeta(term_t a, term_t x, term_t p)    {
+	double A, X;
+	return get_double(a,&A) &&
 			 check(A>1.0, "Zeta parameter > 1.0", a) &&
 	     	 get_double(x,&X) && PL_unify_float(p, pdf_Zeta(A,X)); }
 
-foreign_t prob_Beta(term_t a, term_t b, term_t x, term_t p) { 
-	double A, B, X; 
-	return get_double(a,&A) && get_double(b,&B) && get_double(x,&X) 
-		 && PL_unify_float(p, pdf_Gamma(A,X)); 
+foreign_t prob_Beta(term_t a, term_t b, term_t x, term_t p) {
+	double A, B, X;
+	return get_double(a,&A) && get_double(b,&B) && get_double(x,&X)
+		 && PL_unify_float(p, pdf_Gamma(A,X));
 }
 
-foreign_t prob_Binomial(term_t q, term_t n, term_t x, term_t p) { 
-	double Q; 
-	long N, X; 
-	return get_double(q,&Q) && get_long(n,&N) && get_long(x,&X) 
+foreign_t prob_Binomial(term_t q, term_t n, term_t x, term_t p) {
+	double Q;
+	long N, X;
+	return get_double(q,&Q) && get_long(n,&N) && get_long(x,&X)
 		 && PL_unify_float(p, pdf_Binomial(Q,N,X));
 }
 
-static int gen_prob_Dirichlet(double (*prob_fn)(long, double*, double*), term_t n, term_t a, term_t x, term_t p) { 
+static int gen_prob_Dirichlet(double (*prob_fn)(long, double*, double*), term_t n, term_t a, term_t x, term_t p) {
 	long N;
-	double *A=NULL, *X=NULL; 
-	int r = get_long(n,&N) 
-	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A) 
+	double *A=NULL, *X=NULL;
+	int r = get_long(n,&N)
+	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A)
 	     && alloc_array(N,sizeof(double),(void **)&X) && get_list_doubles(x,X)
-		  && PL_unify_float(p, prob_fn(N,A,X)); 
+		  && PL_unify_float(p, prob_fn(N,A,X));
 	if (A) free(A);
 	if (X) free(X);
 	return r;
@@ -624,21 +624,21 @@ foreign_t prob_Dirichlet(term_t n, term_t a, term_t x, term_t p) { return gen_pr
 foreign_t log_prob_Dirichlet(term_t n, term_t a, term_t x, term_t p) { return gen_prob_Dirichlet(logpdf_Dirichlet,n,a,x,p); }
 foreign_t log_prob_Dirichlet_log(term_t n, term_t a, term_t x, term_t p) { return gen_prob_Dirichlet(logpdf_Dirichlet_log,n,a,x,p); }
 
-foreign_t prob_Discrete(term_t n, term_t q, term_t x, term_t p) { 
+foreign_t prob_Discrete(term_t n, term_t q, term_t x, term_t p) {
 	long N, X;
-	double *Q=NULL; 
+	double *Q=NULL;
    int r = get_long(n,&N) && get_long(x,&X)
 	     && alloc_array(N,sizeof(double),(void **)&Q) && get_list_doubles(q,Q)
-     	  && PL_unify_float(p, pdf_Discrete(N,Q,sum_array(Q,N),X)); 
+     	  && PL_unify_float(p, pdf_Discrete(N,Q,sum_array(Q,N),X));
 	if (Q) free(Q);
 	return r;
 }
 
-foreign_t mean_log_Dirichlet(term_t n, term_t a, term_t x) { 
+foreign_t mean_log_Dirichlet(term_t n, term_t a, term_t x) {
 	long N;
-	double *A=NULL, *X=NULL; 
-	int r = get_long(n,&N) 
-	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A) 
+	double *A=NULL, *X=NULL;
+	int r = get_long(n,&N)
+	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A)
 	     && alloc_array(N,sizeof(double),(void **)&X) && vector_psi(N,A,X)
 		  && unify_list_doubles(x,X,N);
 	if (A) free(A);
@@ -646,11 +646,11 @@ foreign_t mean_log_Dirichlet(term_t n, term_t a, term_t x) {
 	return r;
 }
 
-foreign_t log_partition_Dirichlet(term_t n, term_t a, term_t z) { 
+foreign_t log_partition_Dirichlet(term_t n, term_t a, term_t z) {
 	long N;
-	double *A=NULL; 
-	int r = get_long(n,&N) 
-	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A) 
+	double *A=NULL;
+	int r = get_long(n,&N)
+	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A)
 	     && PL_unify_float(z, vector_betaln(N,A));
 	if (A) free(A);
 	return r;
@@ -668,12 +668,12 @@ static double kldiv_dirichlet(int N, double *A, double *B) {
 	return D;
 }
 
-foreign_t kldiv_Dirichlet(term_t n, term_t a, term_t b, term_t d) { 
+foreign_t kldiv_Dirichlet(term_t n, term_t a, term_t b, term_t d) {
 	long N;
-	double *A=NULL, *B=NULL; 
-	int r = get_long(n,&N) 
-	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A) 
-	     && alloc_array(N,sizeof(double),(void **)&B) && get_list_doubles(b,B) 
+	double *A=NULL, *B=NULL;
+	int r = get_long(n,&N)
+	     && alloc_array(N,sizeof(double),(void **)&A) && get_list_doubles(a,A)
+	     && alloc_array(N,sizeof(double),(void **)&B) && get_list_doubles(b,B)
 	     && PL_unify_float(d, kldiv_dirichlet(N,A,B));
 	if (A) free(A);
 	if (B) free(B);
@@ -762,14 +762,14 @@ foreign_t crp_sample( term_t Alpha, term_t Classes, term_t Action, term_t Rnd1, 
 		int z=Discrete( &rs, len+1, dist, sum_array(dist,len+1));
 
 		if (z==0) { rc = PL_unify_atom(Action,atom_new); }
-		else { 
+		else {
 			term_t X=PL_new_term_ref();
 			int 	i=0;
 			while (i<z && PL_get_list(Vals,X,Vals)) i++;
 			rc = (i==z) && PL_unify_term(Action, PL_FUNCTOR, functor_old2, PL_TERM, X, PL_INT, z);
 		}
 	}
-	if (dist) free(dist); 
+	if (dist) free(dist);
 	return rc && unify_state(Rnd2, &rs);
 }
 
@@ -782,7 +782,7 @@ foreign_t crp_sample( term_t Alpha, term_t Classes, term_t Action, term_t Rnd1, 
 %  or old(Class).
 %  Operates in random state DCG.
 crp_sample_obs( Alpha, classes(Counts,Vals), X, ProbX, A, Prob, RS1, RS2) :-
-	counts_dist( Alpha, Counts, [CNew|Counts1]),	
+	counts_dist( Alpha, Counts, [CNew|Counts1]),
 	PNew is CNew*ProbX,
 	maplist( post_count(X),Vals,Counts1,Counts2),
 	discrete( [PNew|Counts2], Z, RS1, RS2),
@@ -819,12 +819,12 @@ foreign_t crp_sample_obs( term_t Alpha, term_t Classes, term_t X, term_t Probx, 
 
 		z=Discrete( &rs, len+1, dist, sum_array(dist,len+1));
 		if (z==0) { rc = PL_unify_atom(Act,atom_new); }
-		else { 
+		else {
 			rc = PL_unify_term(Act, PL_FUNCTOR, functor_old1, PL_INT, z);
 		}
 		rc &= PL_unify_float(Prob, paccum/total);
 	}
-	if (dist) free(dist); 
+	if (dist) free(dist);
 	return rc && unify_state(Rnd2, &rs);
 }
 
@@ -863,7 +863,7 @@ foreign_t crp_sample_rm( term_t Classes, term_t X, term_t Class, term_t Rnd1, te
 		z = Discrete( &rs, len, dist, sum_array(dist,len));
 		rc = (z<len) && PL_unify_integer(Class, z+1);
 	}
-	if (dist) free(dist); 
+	if (dist) free(dist);
 	return rc && unify_state(Rnd2, &rs);
 }
 
@@ -935,7 +935,7 @@ void stoch(double *x, size_t len)
 	int i;
 	double total=0, *xp;
 	for (i=0, xp=x; i<len; i++, xp++) total += *xp;
-	for (i=0, xp=x; i<len; i++, xp++) *xp /= total; 
+	for (i=0, xp=x; i<len; i++, xp++) *xp /= total;
 }
 
 /*
@@ -944,16 +944,16 @@ sample_dp_teh( ApSumKX, B, NX, dp(Alpha1), dp(Alpha2)) -->
 	seqmap(beta(Alpha1_1),NX,WX),
 	seqmap(bernoulli(Alpha1),NX,SX),
 	{	maplist(log,WX,LogWX),
-		sumlist(SX,SumSX), 
-		sumlist(LogWX,SumLogWX), 
+		sumlist(SX,SumSX),
+		sumlist(LogWX,SumLogWX),
 		A1 is ApSumKX-SumSX, B1 is B-SumLogWX
 	},
 	gamma(A1,B1,Alpha2).
 
-%	run_left( seqmap(accum_log_beta(Alpha1_1),NX), 0, SumLogWX), 
-%	run_left( seqmap(accum_bernoulli(Alpha1),NX), 0, SumSX), 
+%	run_left( seqmap(accum_log_beta(Alpha1_1),NX), 0, SumLogWX),
+%	run_left( seqmap(accum_bernoulli(Alpha1),NX), 0, SumSX),
 %accum_log_beta(A,B) --> \> beta(A,B,X), { LogX is log(X) }, \< add(LogX).
-%accum_bernoulli(A,B) --> \> bernoulli(A,B,X), \< add(X).  
+%accum_bernoulli(A,B) --> \> bernoulli(A,B,X), \< add(X).
 
  */
 
