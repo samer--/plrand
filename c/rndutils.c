@@ -68,6 +68,9 @@ double logpdf_Dirichlet_log(long n, double *a, double *lx) {
 
 // -----------------------------------------------------
 
+double psi(double x) { return gsl_sf_psi(x); }
+double lngamma(double x) { return gsl_sf_lngamma(x); }
+
 /* Computes psi (digamma) vector function */
 int vector_psi(long n, double *a, double *x)
 {
@@ -251,8 +254,8 @@ long Poisson(RndState *S, double lambda)
 		if (x>lambda) r=Binomial(S,lambda/x,m-1);
 		else          r=m+Poisson(S,lambda-x);
 	} else {
-		double p;
-		for (p=0, r=-1; p<lambda; p+=Exponential(S)) r++; 
+		double p, elambda = exp(-lambda);
+		for (p=1, r=-1; p>elambda; p*=Uniform(S)) r++; 
 	}
 	return r;
 }
