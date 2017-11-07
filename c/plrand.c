@@ -76,6 +76,8 @@ foreign_t log_prob_Dirichlet_log( term_t n, term_t a, term_t x, term_t p);
 foreign_t mean_log_Dirichlet( term_t n, term_t a, term_t x);
 foreign_t log_partition_Dirichlet( term_t n, term_t a, term_t z);
 foreign_t kldiv_Dirichlet( term_t n, term_t a, term_t b, term_t d);
+foreign_t pred_lngamma( term_t x, term_t lngamma_x);
+foreign_t pred_digamma( term_t x, term_t psi_x);
 
 foreign_t sample_Single_( term_t x);
 foreign_t sample_Double_( term_t x);
@@ -158,6 +160,8 @@ install_t install() {
 	PL_register_foreign("mean_log_Dirichlet", 3, (void *)mean_log_Dirichlet, 0);
 	PL_register_foreign("log_partition_Dirichlet", 3, (void *)log_partition_Dirichlet, 0);
 	PL_register_foreign("kldiv_Dirichlet", 4, (void *)kldiv_Dirichlet, 0);
+	PL_register_foreign("lngamma", 2, (void *)pred_lngamma, 0);
+	PL_register_foreign("digamma", 2, (void *)pred_digamma, 0);
 
 	PL_register_foreign("crp_prob", 5, (void *)crp_prob, 0);
 	PL_register_foreign("crp_sample", 5, (void *)crp_sample, 0);
@@ -654,6 +658,16 @@ foreign_t log_partition_Dirichlet(term_t n, term_t a, term_t z) {
 	     && PL_unify_float(z, vector_betaln(N,A));
 	if (A) free(A);
 	return r;
+}
+
+foreign_t pred_digamma(term_t x, term_t y) {
+	double X;
+	return get_double(x,&X) && PL_unify_float(y, psi(X));
+}
+
+foreign_t pred_lngamma(term_t x, term_t y) {
+	double X;
+	return get_double(x,&X) && PL_unify_float(y, lngamma(X));
 }
 
 static double kldiv_dirichlet(int N, double *A, double *B) {

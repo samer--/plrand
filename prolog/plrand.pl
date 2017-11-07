@@ -26,6 +26,8 @@
    ,  mean_log_dirichlet/2 % +list(nonneg), -list(number)
    ,  log_partition_dirichlet/2 % +list(nonneg), -number
    ,  kldiv_dirichlet/3         % +list(nonneg), +list(nonneg), -number
+   ,  lngamma/2
+   ,  digamma/2
 	]).
 
 /** <module> Skippable, splittable psuedorandom generator
